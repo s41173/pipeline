@@ -62,9 +62,9 @@ class Registration extends MX_Controller
         exit;
     }
          
-    public function getdatatable($search=null,$type='null',$date='null')
+    public function getdatatable($search=null,$date='null',$cust='null',$type='null')
     {
-        if ($search != null){ $result = $this->model->search($type,$date)->result(); }
+        if ($search != null){ $result = $this->model->search($date,$cust)->result(); }
         else{ $result = $this->model->get_last($this->modul['limit'])->result(); }
         
         $output = null;
@@ -103,7 +103,6 @@ class Registration extends MX_Controller
 
         $data['tank'] = $this->tank->combo_api();
         $data['srctank'] = $this->model->get_src_tank();
-        $data['docno'] = $this->model->combo_docno();
         $data['array'] = array('','');
         $data['month'] = combo_month();
         $data['default']['month'] = date('m');
@@ -720,10 +719,10 @@ class Registration extends MX_Controller
 
 //        Property Details
         $data['company'] = $this->properti['name'];
-        $data['reports'] = $this->model->report($this->input->post('cstatustype'),$start,$end)->result();
+        $data['reports'] = $this->model->report($this->input->post('ccustomer'), $this->input->post('cstatustype'), $this->input->post('cperiodtype'),$start,$end)->result();
         
-        if ($this->input->post('ctype') == 0){ $this->load->view('registration_report', $data); }
-        else { $this->load->view('registration_pivot', $data); }
+        if ($this->input->post('ctype') == 0){ $this->load->view('contract_report', $data); }
+        else { $this->load->view('contract_pivot', $data); }
     }
         
    

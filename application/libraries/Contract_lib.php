@@ -21,6 +21,18 @@ class Contract_lib extends Custom_Model{
       return $this->db->get($this->tableName)->result();
     }
     
+    function get_contract_combo($regid){
+        $this->db->select($this->field);
+        $this->db->from($this->tableName); 
+        $this->db->where('deleted', $this->deleted);
+        $this->db->where('registration_id', $regid);
+        $this->db->order_by('origin_no', 'asc'); 
+        $val = $this->db->get()->result();
+        if ($val){ foreach($val as $row){$data['options'][$row->id] = strtoupper($row->origin_no);} }
+        else { $data['options'][''] = '--'; }        
+        return $data;
+    }
+    
     function cek_contract_amount($regid)
     {
         $this->db->select_sum('transfer_amount');
@@ -34,9 +46,9 @@ class Contract_lib extends Custom_Model{
        return $this->db->delete($this->tableName);
     }
 
-    function get_contract_details($contract)
+    function get_details($contract)
     {
-        $this->db->select('id,notes, dates, amount, tax, balance, status, approved, log');
+        $this->db->select($this->field);
         $this->db->where('id', $contract);
         $query = $this->db->get($this->tableName)->row();
         return $query;

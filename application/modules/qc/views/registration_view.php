@@ -38,7 +38,7 @@
 	var sites_del  = "<?php echo site_url('registration/delete/');?>";
     var sites_update = "<?php echo site_url('registration/update_all/');?>";
 	var sites_get  = "<?php echo site_url('registration/update/');?>";
-    var sites_details  = "<?php echo site_url('qc/get_register/');?>";
+    var sites_details  = "<?php echo site_url('registration/invoice/');?>";
     var sites_primary  = "<?php echo site_url('registration/confirmation/');?>";
 	var source = "<?php echo $source;?>";
     var sites  = "<?php echo site_url('registration/');?>";
@@ -72,14 +72,12 @@
            <!-- searching form -->
            
            <form id="searchform" class="form-inline">
-               
+              
                <div class="form-group">
-                <label> Type </label> <br>
-<select id="ctype_search" class="form-control select2_single" tabindex='-1' style='width:150px;'>
-    <option value="PIPELINE"> PIPELINE </option>
-    <option value="CARRIAGE"> CARRIAGE </option>
-</select>
-              </div>
+                <label> Customer </label> <br>
+         <?php $js = "class='form-control select2_single' id='ccust_search' tabindex='-1' style='width:210px;' "; 
+         //echo form_dropdown('ccust', $customer, isset($default['']) ? $default[''] : '', $js); ?>
+              </div>  
                         
        <div class="form-group">
            <label> Dates : </label> <br>
@@ -154,7 +152,7 @@
       
       <!-- Modal - Report Form -->
       <div class="modal fade" id="myModal3" role="dialog">
-         <?php $this->load->view('registration_report_panel'); ?>    
+         <?php //$this->load->view('contract_report_panel'); ?>    
       </div>
       <!-- Modal - Report Form -->
               

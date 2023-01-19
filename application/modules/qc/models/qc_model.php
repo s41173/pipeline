@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Registration_model extends Custom_Model
+class Qc_model extends Custom_Model
 {
     protected $logs;
     
@@ -9,8 +9,8 @@ class Registration_model extends Custom_Model
         parent::__construct();
         $this->logs = new Log_lib();
         $this->com = new Components();
-        $this->tableName = $this->com->get_table($this->com->get_id('registration'));
-        $this->com = $this->com->get_id('regisration');
+        $this->tableName = $this->com->get_table($this->com->get_id('qc'));
+        $this->com = $this->com->get_id('qc');
         $this->field = $this->db->list_fields($this->tableName);
     }
     
@@ -26,72 +26,51 @@ class Registration_model extends Custom_Model
         return $this->db->get(); 
     }
     
-    function search($type=null,$date=null)
+    function get_by_registration($register)
+    {
+        $this->db->select($this->field);
+        $this->db->from($this->tableName); 
+        $this->db->where('deleted', $this->deleted);
+        $this->db->where('registration_id', $register);
+        $this->db->order_by('id', 'asc'); 
+        return $this->db->get(); 
+    }
+    
+    function get_supplier(){
+        $this->db->select($this->field);
+        $this->db->from($this->tableName); 
+        $this->db->where('deleted', $this->deleted);
+        $this->db->order_by('supplier', 'asc'); 
+        $this->db->distinct();
+        $val = $this->db->get()->result();
+        if ($val){ foreach($val as $row){$data['options'][$row->supplier] = strtoupper($row->supplier);} }
+        else { $data['options'][''] = '--'; }        
+        return $data;
+    }
+    
+    function search($date=null,$cust=null)
     {   
         $this->db->select($this->field);
         $this->db->from($this->tableName); 
         $this->db->where('deleted', $this->deleted);
-        $this->cek_null_string($date, 'DATE(dates)');
-        $this->cek_null_string($type, 'type');
-//        $this->cek_null_string($docno, 'docno');
+        $this->cek_null_string($date, 'dates');
+        $this->cek_null_string($cust, 'cust_id');
+//        $this->cek_null_string($type, 'type');
         $this->db->order_by('id', 'desc'); 
         return $this->db->get(); 
     }
-    
-    function get_src_tank(){
-        $this->db->select('source_tank');
-        $this->db->from($this->tableName); 
-        $this->db->where('deleted', $this->deleted);
-        $this->db->order_by('source_tank', 'asc'); 
-        $this->db->distinct();
-        $val = $this->db->get()->result();
-        if ($val){ foreach($val as $row){$data['options'][$row->source_tank] = ucfirst($row->source_tank);} }
-        else { $data['options'][''] = '--'; }        
-        return $data;
-    }
-    
-     function combo_docno(){
-        $this->db->select('docno');
-        $this->db->from($this->tableName); 
-        $this->db->where('deleted', $this->deleted);
-        $this->db->order_by('docno', 'asc'); 
-        $this->db->distinct();
-        $val = $this->db->get()->result();
-        if ($val){ foreach($val as $row){$data['options'][$row->docno] = strtoupper($row->docno);} }
-        else { $data['options'][''] = '--'; }        
-        return $data;
-    }
-    
-    function get_pic($field='pic1'){
-        $this->db->select($field);
-        $this->db->from($this->tableName); 
-        $this->db->where('deleted', $this->deleted);
-        $this->db->order_by($field, 'asc'); 
-        $this->db->distinct();
-        $val = $this->db->get()->result();
-        if ($val){ foreach($val as $row){$data['options'][$row->$field] = ucfirst($row->$field);} }
-        else { $data['options'][''] = '--'; }        
-        return $data;
-    }
-          
-    function search_list($content=null)
+            
+    function report($cust=null,$status=null,$period=null,$start=null,$end=null)
     {   
         $this->db->select($this->field);
         $this->db->from($this->tableName); 
         $this->db->where('deleted', $this->deleted);
-        $this->cek_null($content, 'content');
-        $this->db->where('status',1);
-        $this->db->order_by('sku', 'asc'); 
-        return $this->db->get(); 
-    }
-    
-    function report($status=null,$start=null,$end=null)
-    {   
-        $this->db->select($this->field);
-        $this->db->from($this->tableName); 
-        $this->db->where('deleted', $this->deleted);
-        $this->cek_nol($status, 'type');
-        $this->cek_between($start, $end, 'dates');
+        $this->cek_nol($status, 'status');
+        $this->cek_null($cust, 'cust_id');
+        if ($period == 0){ $this->cek_between($start, $end); }
+        elseif ($period == 1){ $this->cek_between($start, $end, 'starts'); }
+        elseif ($period == 2){ $this->cek_between($start, $end, 'ends'); }
+        
         $this->db->order_by('id', 'asc'); 
         return $this->db->get(); 
     }
