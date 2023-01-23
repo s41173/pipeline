@@ -89,7 +89,7 @@ class Registration extends MX_Controller
 
     function get_last()
     {
-        $this->acl->otentikasi1($this->title);
+//        $this->acl->otentikasi1($this->title);
 
         $data['title'] = $this->properti['name'].' | Administrator  '.ucwords('Tank Manager');
         $data['h2title'] = $this->components->get_title($this->title);

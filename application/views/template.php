@@ -116,7 +116,7 @@
         <!-- footer content -->
         <footer>
           <div class="pull-right">
-            Powered By <a target="blank" href="http://www.dswip.com"> <b> Dswip Kreasindo </b> </a>
+<!--            Powered By <a target="blank" href="http://www.dswip.com"> <b> Dswip Kreasindo </b> </a>-->
           </div>
           <div class="clearfix"></div>
         </footer>

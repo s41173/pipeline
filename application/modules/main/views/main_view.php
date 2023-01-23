@@ -87,45 +87,45 @@
         </style>
         
             <div class="ixcon">
-                <a href="<?php echo site_url('purchase');?>">
-                <img alt="Article Manager" src="<?php echo base_url().'images/purchase.png';?>">
-                <p> Purchase </p>
+                <a href="<?php echo site_url('registration');?>">
+                <img alt="Registration" src="<?php echo base_url().'images/registration.png';?>">
+                <p> Registration </p>
                 </a>
             </div>
         
             <div class="ixcon">
-                <a href="<?php echo site_url('product');?>">
-                <img alt="user" src="<?php echo base_url().'images/inventory.png';?>">
-                <p> Inventory </p>
+                <a href="<?php echo site_url('qc');?>">
+                <img alt="user" src="<?php echo base_url().'images/qc.png';?>">
+                <p> Quality-Control </p>
               </a>
             </div>
         
             <div class="ixcon">
-                <a href="<?php echo site_url('stock_transfer');?>">
-                <img alt="user" src="<?php echo base_url().'images/backup.png';?>">
-                <p> Stock Transfer </p>
+                <a href="<?php echo site_url('sounding');?>">
+                <img alt="user" src="<?php echo base_url().'images/sounding.png';?>">
+                <p> Tank Sounding </p>
               </a>
             </div>
         
             <div class="ixcon">
-                <a href="<?php echo site_url('sales');?>">
-                <img alt="setting" src="<?php echo base_url().'images/sales.png';?>">
-                <p> Sales </p>
+                <a href="<?php echo site_url('role');?>">
+                <img alt="setting" src="<?php echo base_url().'images/role.png';?>">
+                <p> Role </p>
               </a>
-        
             </div>
         
             <div class="ixcon">
-                <a href="<?php echo site_url('transfer');?>">
-                <img alt="setting" src="<?php echo base_url().'images/receipt.png';?>">
-                <p> Transaction </p>
+                <a href="<?php echo site_url('log');?>">
+                <img alt="setting" src="<?php echo base_url().'images/log.png';?>">
+                <p> Log </p>
               </a>
         
             </div>
             
+<!--
             <div class="ixcon">
                 <a href="<?php echo site_url('report_reference');?>">
-                <img alt="setting" src="<?php echo base_url().'images/settlement.png';?>">
+                <img alt="setting" src="<?php //echo base_url().'images/settlement.png';?>">
                 <p> General Ledger </p>
               </a>
         
@@ -133,11 +133,12 @@
         
             <div class="ixcon">
                 <a href="<?php echo site_url('payroll');?>">
-                <img alt="setting" src="<?php echo base_url().'images/role.png';?>">
+                <img alt="setting" src="<?php //echo base_url().'images/role.png';?>">
                 <p> Payroll </p>
               </a>
         
             </div>
+-->
         
             <div class="ixcon">
                 <a href="<?php echo site_url('admin');?>">
@@ -156,7 +157,7 @@
         
        <style type="text/css">
            .tablebox{ height: 300px; overflow-y: scroll; overflow-x: auto; } 
-           .chartbox{ height: 300px; overflow: hidden; } 
+           .chartbox{ height: 350px; overflow: hidden; } 
            .margin{ margin-bottom: 30px; }
        </style>  
         
@@ -172,7 +173,7 @@ $(document).ready(function () {
 
 		var chart = new CanvasJS.Chart("chartContainer", {
 			theme: "theme1",//theme1
-			axisX:{title: "Account Receivable Due", },
+			axisX:{title: "Tank Farm Outstanding Qty (Mt)", },
    		    animationEnabled: true, 
 			data: [
 				{
@@ -207,7 +208,8 @@ $(document).ready(function () {
 </script>       
         
        <!-- box ar chart-->
-       <div id="chartContainer" class="col-md-6 col-sm-12 col-xs-12 chartbox margin">  </div> 
+       <div id="chartContainer" class="col-md-12 col-sm-12 col-xs-12 chartbox margin">  </div> 
+<!--
        <div id="" class="col-md-6 col-sm-12 col-xs-12 tablebox margin">
            
             <div class="x_panel">
@@ -217,14 +219,16 @@ $(document).ready(function () {
                   </div>
                   <div class="x_content">
                     <div class="table-responsive">    
-                      <?php echo ! empty($salestable) ? $salestable : ''; ?>       
+                      <?php //echo ! empty($salestable) ? $salestable : ''; ?>       
                     </div>
                   </div>
             </div>
            
        </div>     
+-->
         
        <!-- box ap chart-->
+<!--
        <div id="chartContainer2" class="col-md-6 col-sm-12 col-xs-12 chartbox margin">  </div> 
        <div id="" class="col-md-6 col-sm-12 col-xs-12 tablebox margin"> 
            
@@ -235,14 +239,16 @@ $(document).ready(function () {
                   </div>
                   <div class="x_content">
                     <div class="table-responsive">  
-                    <?php echo ! empty($purchasetable) ? $purchasetable : ''; ?>  
+                    <?php //echo ! empty($purchasetable) ? $purchasetable : ''; ?>  
                     </div>
 
                   </div>
             </div>
        </div>  
+-->
         
        <!-- post dated check  -->
+<!--
        <div id="" class="col-md-6 col-sm-12 col-xs-12 tablebox"> 
            
            <div class="x_panel">
@@ -252,14 +258,16 @@ $(document).ready(function () {
                   </div>
                   <div class="x_content">
                     <div class="table-responsive">  
-                    <?php echo ! empty($checkouttable) ? $checkouttable : ''; ?>  
+                    <?php //echo ! empty($checkouttable) ? $checkouttable : ''; ?>  
                     </div>
 
                   </div>
             </div>
        </div>   
+-->
         
        <!-- stock min qty  -->
+<!--
        <div id="" class="col-md-6 col-sm-12 col-xs-12 tablebox"> 
            
            <div class="x_panel">
@@ -269,12 +277,13 @@ $(document).ready(function () {
                   </div>
                   <div class="x_content">
                     <div class="table-responsive">  
-                    <?php echo ! empty($producttable) ? $producttable : ''; ?>  
+                    <?php //echo ! empty($producttable) ? $producttable : ''; ?>  
                     </div>
 
                   </div>
             </div>
        </div>   
+-->
     
     </div> 
 

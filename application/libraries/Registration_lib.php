@@ -22,6 +22,18 @@ class Registration_lib extends Custom_Model{
         if ($result->validation == 1){ return FALSE; }else{ return TRUE; }
     }
     
+     function get_docno_combo(){
+        $this->db->select('id,docno');
+        $this->db->from($this->tableName); 
+        $this->db->where('deleted', $this->deleted);
+        $this->db->order_by('docno', 'asc'); 
+        $this->db->distinct();
+        $val = $this->db->get()->result();
+        if ($val){ foreach($val as $row){$data['options'][$row->id] = strtoupper($row->docno);} }
+        else { $data['options'][''] = '--'; }        
+        return $data;
+    }
+    
     
 }
 

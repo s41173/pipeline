@@ -17,13 +17,14 @@ class Main extends MX_Controller
         $this->acl->otentikasi();
         $this->period = new Period_lib();
         $this->period = $this->period->get();
+        $this->wb = new Wb_lib();
 //        $this->customer = new Customer_lib();
 //        $this->vendor = new Vendor_lib();
     }
 
     var $title = 'main';
     var $limit = null;
-    private $properti,$period,$customer,$vendor,$acl;
+    private $properti,$period,$customer,$vendor,$acl,$wb;
 
     function index()
     {       
@@ -55,10 +56,10 @@ class Main extends MX_Controller
        $data['main_view'] = 'main/main_view';
        
        // chart
-//       $data['archart'] = site_url()."/main/ar_chart/";
+       $data['archart'] = site_url()."/main/ar_chart/";
 //       $data['apchart'] = site_url()."/main/ap_chart/";
        
-       $data['archart'] = null;
+//       $data['archart'] = null;
        $data['apchart'] = null;
        
        // table
@@ -176,30 +177,18 @@ class Main extends MX_Controller
     
     function ar_chart()
     {        
-        $val1 = $this->Main_model->get_last_ar_between(30,0)->row_array();
-        $val2 = $this->Main_model->get_last_ar_between(60,30)->row_array();
-        $val3 = $this->Main_model->get_last_ar_between(90,60)->row_array();
-        $val4 = $this->Main_model->get_last_ar(90)->row_array();
+         $datax = array();
+         $postdata = json_encode(array('limit' => 50, 'offset' => 0));
+         $response = $this->wb->request_auth('contract/product', $this->session->userdata('userid'), $postdata, null, 'GET');
+         $data = json_decode($response, true); 
+
+         foreach ($data['result'] as $res) 
+         {  
+           $point = array("label" => $res['stock_location_name'] , "y" => floatval($res['quantity']/1000));
+           array_push($datax, $point);      
+         }
         
-        $data = array(
-                    array(
-                        "label" => "0 - 30 Day",
-                        "y" => $val1['amount']
-                    ),
-                    array(
-                        "label" => "30 - 60 Day",
-                        "y" => $val2['amount']
-                    ),
-                    array(
-                        "label" => "60 - 90 Day",
-                        "y" => $val3['amount']
-                    ),
-                    array(
-                        "label" => "> 90 Day",
-                        "y" => $val4['amount']
-                    )
-                );
-       echo json_encode($data, JSON_NUMERIC_CHECK);
+        echo json_encode($datax, JSON_NUMERIC_CHECK);
     }
     
     function ap_chart()

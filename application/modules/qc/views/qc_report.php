@@ -66,16 +66,18 @@
                     datafields:
                     [
                         { name: "NO", type: "string" },
+                        { name: "TYPE", type: "string" },
                         { name: "CODE", type: "string" },
 						{ name: "DATE", type: "string" },
 						{ name: "DOCNO", type: "string" },
-						{ name: "TYPE", type: "string" },
-						{ name: "SOURCE CM", type: "string" },
-                        { name: "TO CM", type: "string" },
-                        { name: "SOURCE TEMP", type: "string" },
-                        { name: "TO TEMP", type: "string" },
-                        { name: "SOURCE TONASE", type: "string" },
-                        { name: "TO TONASE", type: "string" },
+						{ name: "ORIGIN NO", type: "string" },
+						{ name: "SUPPLIER", type: "string" },
+                        { name: "GK NO", type: "string" },
+                        { name: "FFA", type: "string" },
+                        { name: "M", type: "string" },
+                        { name: "I", type: "string" },
+                        { name: "DESCRIPTION", type: "string" },
+                        { name: "QC STATUS", type: "string" },
                         { name: "VALIDATION", type: "string" },
                         { name: "POSTED", type: "string" }
                     ]
@@ -101,17 +103,18 @@
 				autoshowfiltericon: false,
                 columns: [
                   { text: 'NO', dataField: 'NO', width: 50 },
+                  { text: 'TYPE', dataField: 'TYPE', width: 80 },
                   { text: 'CODE', dataField: 'CODE', width: 150 },
 				  { text: 'DATE', dataField: 'DATE', width : 150 },
-                  { text: 'DOCNO', dataField: 'DOCNO', width : 250 },
-                  { text: 'TYPE', dataField: 'TYPE', width: 80 },
-                  { text: 'SOURCE CM', dataField: 'SOURCE CM', width : 120 },
-                  { text: 'TO CM', dataField: 'TO CM', width : 120 },
-				  { text: 'SOURCE TEMP', dataField: 'SOURCE TEMP', width : 130 },
-                  { text: 'TO TEMP', dataField: 'TO TEMP', width : 130 },
-{ text: 'SOURCE TONASE', datafield: 'SOURCE TONASE', width: 150, cellsalign: 'right', cellsformat: 'number' },
-{ text: 'TO TONASE', datafield: 'TO TONASE', width: 150, cellsalign: 'right', cellsformat: 'number' },
-           
+                  { text: 'DOCNO', dataField: 'DOCNO', width : 230 },
+                  { text: 'ORIGIN NO', dataField: 'ORIGIN NO', width : 270 },
+                  { text: 'SUPPLIER', dataField: 'SUPPLIER', width : 150 },
+				  { text: 'GK NO', dataField: 'GK NO', width : 130 },
+				  { text: 'FFA', dataField: 'FFA', width : 80 },
+                  { text: 'M', dataField: 'M', width : 80 },
+                  { text: 'I', dataField: 'I', width : 80 },
+                  { text: 'DESCRIPTION', dataField: 'DESCRIPTION' },
+                  { text: 'QC STATUS', dataField: 'QC STATUS', width : 120 },
                   { text: 'VALIDATION', dataField: 'VALIDATION', width : 110 },
                   { text: 'POSTED', dataField: 'POSTED', width : 80 }
                 ]
@@ -167,7 +170,7 @@
 
 	<center>
 	   <div style="border:0px solid green; width:230px;">	
-	       <h4> <?php echo isset($company) ? $company : ''; ?> <br> Sounding-Report </h4>
+	       <h4> <?php echo isset($company) ? $company : ''; ?> <br> QC-Report </h4>
 	   </div>
 	</center>
 	
@@ -194,9 +197,9 @@
 		<table id="table" border="0" width="100%">
 		   <thead>
            <tr>
-<th> NO </th> <th> TYPE </th> <th> CODE </th> <th> DATE </th> <th> DOCNO </th> 
-<th> TYPE </th> <th> SOURCE CM </th> <th> TO CM </th>
-<th> SOURCE TEMP </th> <th> TO TEMP </th> <th> SOURCE TONASE </th> <th> TO TONASE </th>
+<th> NO </th> <th> TYPE </th> <th> CODE </th> <th> DATE </th> <th> DOCNO </th> <th> ORIGIN NO </th>
+<th> SUPPLIER </th> <th> GK NO </th>
+<th> FFA </th> <th> M </th> <th> I </th> <th> DESCRIPTION </th> <th> QC STATUS </th>
 <th> VALIDATION </th> <th> POSTED </th>
 		   </tr>
            </thead>
@@ -220,14 +223,14 @@ function qcstatus($val){ if ($val == 0)
                        <td class=\"strongs\">".$res->code."</td> 
 					   <td class=\"strongs\">".tglincompletetime($res->dates,1)."</td>
                        <td class=\"strongs\">".$res->docno."</td>
-                       
-                       <td class=\"strongs\">".$res->type."</td>
-                       <td class=\"strongs\">".$res->source_cm."</td>
-                       <td class=\"strongs\">".$res->to_cm."</td>
-                       <td class=\"strongs\">".$res->source_temp."</td>
-                       <td class=\"strongs\">".$res->to_temp."</td>
-                       <td class=\"strongs\">".number_format($res->source_tonase)."</td>
-                       <td class=\"strongs\">".number_format($res->to_tonase)."</td>
+                       <td class=\"strongs\">".$res->origin_no."</td>
+                       <td class=\"strongs\">".$res->supplier."</td>
+                       <td class=\"strongs\">".$res->gk_no."</td>
+                       <td class=\"strongs\">".$res->ffa."</td>
+                       <td class=\"strongs\">".$res->moist."</td>
+                       <td class=\"strongs\">".$res->imp."</td>
+                       <td class=\"strongs\">".$res->description."</td>
+                       <td class=\"strongs\">".qcstatus($res->qc_status)."</td>
                        <td class=\"strongs\">".postedstatus($res->validation)."</td>
                        <td class=\"strongs\">".postedstatus($res->approved)."</td>
 				   </tr>";
@@ -240,7 +243,7 @@ function qcstatus($val){ if ($val == 0)
         
         </div>
         
-        <a style="float:left; margin:10px;" title="Back" href="<?php echo site_url('sounding'); ?>"> 
+        <a style="float:left; margin:10px;" title="Back" href="<?php echo site_url('qc'); ?>"> 
           <img src="<?php echo base_url().'images/back.png'; ?>"> 
         </a>
         

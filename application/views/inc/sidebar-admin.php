@@ -1,6 +1,6 @@
 <div class="left_col scroll-view">
         <div class="navbar nav_title" style="border: 0;">
-            <a href="<?php echo site_url('main'); ?>" class="site_title"><i class="fa fa-home"></i> <span> D'swip Panel </span></a>
+            <a href="<?php echo site_url('main'); ?>" class="site_title"><i class="fa fa-home"></i> <span> Bulk Transfer Panel </span></a>
         </div>
         <div class="clearfix"></div>
             <div class="profile">

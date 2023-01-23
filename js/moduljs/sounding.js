@@ -8,17 +8,77 @@ $(document).ready(function (e) {
 	 });
 	 
 	// date time picker
-	$('#d1,#d2,#d3,#d4,#d5').daterangepicker({
+	  $('#d1,#d2,#d3,#d4,#d5,#d6').daterangepicker({
 		 locale: {format: 'YYYY/MM/DD'}
-    }); 
-	
-    $('#ds1,#ds2').daterangepicker({
-        locale: {format: 'YYYY-MM-DD'},
+		}); 
+		
+	$('#ds1,#ds2,#ds3').daterangepicker({
+	   locale: {format: 'YYYY-MM-DD'},
+	   singleDatePicker: true,
+	   showDropdowns: true
+	 });
+
+	 $('#ds4,#ds5,#ds6,#ds7,#ds8').daterangepicker({
+		timePicker: true,
 		singleDatePicker: true,
-        showDropdowns: true
-     });
+		showDropdowns: true,
+		timePicker24Hour: true,
+		locale: { format: 'YYYY-MM-DD H:mm'}
+	  });
+
+	 $('#dtime1,#dtime2,#dtime3,#dtime4,#dtime5,#dtime6').daterangepicker({
+		timePicker: true,
+		singleDatePicker: true,
+		showDropdowns: true,
+		timePicker24Hour: true,
+		locale: { format: 'YYYY/MM/DD H:mm'}
+	 });
 	
 	load_data();  
+
+
+	// checkbox set empty 
+
+	// form submit update
+		// ajax form non upload data
+	$("#upload_form_update,#upload_form_update2").on('submit',(function(e) {
+		
+			var elem = $(this);
+			e.preventDefault();
+			$.ajax({
+				url: $(this).attr('action'),
+				type: "POST",
+				data:  new FormData(this),
+				contentType: false,
+				cache: false,
+				processData:false,
+				beforeSend : function()
+				{
+					//$("#preview").fadeOut();
+				},
+				success: function(data)
+				{
+					// console.log(data);
+					res = data.split("|");
+					
+					if(res[0]=='true')
+					{
+						// invalid file format.
+						error_mess(1,res[1]);
+						// if (elem.attr('id') == "upload_form_non"){ resets(); }
+					}
+					else if(res[0] == 'warning'){ error_mess(2,res[1]); }
+					else if(res[0] == 'error'){ error_mess(3,res[1]); }
+				},
+				  error: function(e) 
+				{
+					//$("#error").html(e).fadeIn();
+					error_mess(3,e);
+					console.log(e.responseText);	
+				} 	        
+		   });
+			 
+		}));
 	
 	// batas dtatable
 	
@@ -28,126 +88,35 @@ $(document).ready(function (e) {
 		e.preventDefault();
 		var element = $(this);
 		var del_id = element.attr("id");
-		var url = sites_ajax +"/update/"+ del_id;
+		var url = sites_get +"/"+ del_id;
 		
+		window.location.href = url;
+		
+	});
+
+	
+		// fungsi jquery update
+	$(document).on('click','.text-ledger',function(e)
+	{	
+		e.preventDefault();
+		var element = $(this);
+		var del_id = element.attr("id");
+		var url = sites_details +"/"+ del_id;
+		// console.log(url);
 		window.location.href = url;
 	});
 
-	// fungsi jquery ledger
-	$(document).on('click','.text-invoice',function(e)
+	// validate status
+	$(document).on('click','#validatebtn',function(e)
 	{	
 		e.preventDefault();
 		var element = $(this);
-		var del_id = element.attr("id");
-		var url = sites_ajax +"/invoice/"+ del_id;
-		window.open(url, "_blank", "scrollbars=1,resizable=0,height=600,width=800");
-	});
-
-	// calculate correction
-	$(document).on('keyup','#tadj',function(e)
-	{	
-		e.preventDefault();
-		var netkg = parseFloat($("#hnetkg").val());
-		var adj = parseFloat($(this).val());
-		var begin = parseFloat($("#hbegin").val());
-		var coeff = parseFloat($("#tcoeff").val());
-
-		key = e.which || e.keyCode || e.charCode;
-		if (key != 8 && key != 187 && key != 189 && key != 190){
-			if (netkg != '0' && netkg != "" && netkg != 0){
-
-				if (adj == 0 || adj == ""){
-					$("#hnetkg").val(begin);
-					$(this).val(0);
-					$("#tnetkg").val(formatNumber(begin));
-					$("#tmetricton").val("");
-				}else{
-					hasil = netkg+adj;
-			   	$("#hnetkg").val(hasil);
-					$("#tnetkg").val(formatNumber(hasil));
-					$("#tmetricton").val(formatNumber(Math.round(hasil*coeff)));
-				}
-			}
-		}
-	});
-
-	$(document).on('click','#breset',function(e)
-	{	
-		e.preventDefault();
-		$("#hnetkg,#hobv").val('0');
-		// $('#journalformdata').reset();
-		$('#journalformdata').trigger("reset");
-	});
-
-		// adjustment kg
-		$(document).on('keyup','#tincm,#tcorcm',function(e)
-		{	
-			e.preventDefault();
-			var input = $("#tincm").val();
-			var corr = $("#tcorcm").val();
-			var res = parseFloat(input)+parseFloat(corr);
-			if (isNaN(res)){ $("#tacorr").val('0'); }else{ $("#tacorr").val(res); }
-		});
-
-	// tank sounding
-	$(document).on('click','#bfetchtank',function(e)
-	{	
-		e.preventDefault();
-		var tank = $("#ctank").val();
-		var input = $("#tincm").val();
-		var sounding = $("#tacorr").val();
-		var temp = $("#ttemp").val();
-		var mess = null;
-
-		if (input == "" || input == 0){ mess = 'Sounding Value Required';  }
-		if (sounding == "" || sounding == 0){ mess = 'Correction Sounding Value Required';  }
-		if (temp == "" || temp == 0){ mess = 'Temperature Value Required';  }
-
-		if (!mess){
-			// batas
-			$.ajax({
-				type: 'POST',
-				url: sites+"/get_density/"+tank+"/"+temp,
-				cache: false,
-				headers: { "cache-control": "no-cache" },
-				success: function(result) {
-					
-					res = result.split("|");
-					if (res[0]== 'true'){ 
-						$("#tdensity").val(res[1]); $("#tcoeff").val(res[2]); 
-						get_sounding();
-				
-				  }else{ error_mess(2,res[1],0); }
-				}
-			})
-			return false;
-
-		}else{ error_mess(3,mess,0); }
-	});
-
-	$(document).on('change','#ctank',function(e)
-	{	
-		e.preventDefault();
-		$("#tcorcm").val('0');
-		$("#ttemp").val('0');
-		$("#tcoeff").val('0');
-		$("#tdensity").val('0');
-		$("#tnetkg").val('0');
-		$("#hnetkg,#hobv,#hbegin").val('0');
-	});
-	
-	// publish status
-	$(document).on('click','.primary_status',function(e)
-	{	
-		e.preventDefault();
-		var element = $(this);
-		var del_id = element.attr("id");
-		var url = sites_ajax +"/confirmation/"+ del_id;
+		var value = $(this).val();
+		var url = sites +"/validation/"+ value;
 		$(".error").fadeOut();
 		
-		// // $("#myModal2").modal('show');
-		// // batas
-		$.ajax({
+		// batas
+		 $.ajax({
 			type: 'POST',
 			url: url,
     	    cache: false,
@@ -156,8 +125,38 @@ $(document).ready(function (e) {
 				
 				res = result.split("|");
 				if (res[0] == "true")
+				{   error_mess(1,res[1],0);
+					location.reload();
+				}
+				else if (res[0] == 'warning'){ error_mess(2,res[1],0); }
+				else{ error_mess(3,res[1],0); }
+			}
+		})
+		return false;	
+	});
+	
+	// publish status
+	$(document).on('click','.primary_status',function(e)
+	{	
+		e.preventDefault();
+		var element = $(this);
+		var del_id = element.attr("id");
+		var url = sites_primary +"/"+ del_id;
+		$(".error").fadeOut();
+		
+		// $("#myModal2").modal('show');
+		// batas
+		$.ajax({
+			type: 'POST',
+			url: url,
+            cache: false,
+			headers: { "cache-control": "no-cache" },
+			success: function(result) {
+				
+				res = result.split("|");
+				if (res[0] == "true")
 				{   
-			        error_mess(1,res[1],0);
+			    error_mess(1,res[1],0);
 					load_data();
 				}
 				else if (res[0] == 'warning'){ error_mess(2,res[1],0); }
@@ -167,7 +166,6 @@ $(document).ready(function (e) {
 		return false;	
 	});
 
-	// gl transaction delete
 	$(document).on('click','.text-remove',function(e)
 	{	
 		e.preventDefault();
@@ -196,72 +194,116 @@ $(document).ready(function (e) {
 		return false;	
 	});
 
-	// fungsi ajax counter
-	$(document).on('change','#ctype',function(e)
-	{	
-		e.preventDefault();
-		var value = $(this).val();
-		var url = sites+'/counter/'+value+'/ajax';
+	// get qty kontrak from api
+	$('#bgetqty').click(function() 
+	{
+		var url = sites+"/get_out_standing/";
+		var value = $("#titem").val();
+		var nilai = '{ "origin":"'+value+'"}';
+		// console.log(nilai);
 
+		// console.log(url);
+			
 		$.ajax({
 			type: 'POST',
 			url: url,
-    	    data: "value="+ value,
+			data: nilai,
+			contentType: "application/json",
+            dataType: 'json',
+			success: function(data){
+				// console.log("device control succeeded");
+				console.log(data.amount); 
+				$("#tcontractqty").val(data.amount);
+				$("#toustandingqty").val(data.oustanding);
+				$("#ttransferqty").val(data.oustanding);
+			},
+			error: function(e){
+				console.log("Error posting data");
+			}
+		});
+	});
+
+
+	// delete item sounding
+    $(document).on('click','.text-remove-sounding',function(e)
+	{	
+		e.preventDefault();
+		var element = $(this);
+		var del_id = element.attr("id");
+		var url = sites +"/delete_item_sounding/"+ del_id;
+		$(".error").fadeOut();
+
+		// console.log(url);
+		
+		// batas
+		$.ajax({
+			type: 'POST',
+			url: url,
+    	    cache: false,
+			headers: { "cache-control": "no-cache" },
 			success: function(result) {
-			  $("#tno,#tno_update").val(result);
+				
+				res = result.split("|");
+				if (res[0] == "true")
+				{   error_mess(1,res[1],0);
+					location.reload();
+				}
+				else if (res[0] == 'warning'){ error_mess(2,res[1],0); }
+				else{ error_mess(3,res[1],0); }
 			}
 		})
 		return false;	
 	});
 
-	// fungsi ajax transform
-	$('#ajaxtransform').submit(function() {
+	$('#cekallupdate').click(function() {
+		
+		var value = $('input[name="cek[]"]:checked');
 
 		$.ajax({
 			type: 'POST',
-			url: $(this).attr('action'),
-			data:  new FormData(this),
-			contentType: false,
-    	cache: false,
-			processData:false,
+			url: sites_update,
+			data: value,
 			success: function(data) {
-				
+
 				res = data.split("|");
 				if (res[0] == "true")
-				{   
+				{
+					load_data();
 					error_mess(1,res[1],0);
-					setTimeout(function() { location.reload(); }, 3500);
 				}
-				else if (res[0] == 'warning'){ error_mess(2,res[1],0); }
-				else{ error_mess(3,res[1],0); }
+				else if(res[0] == 'error') { error_mess(3,res[1],0); }
+				else{ 
+				  load_data();
+				  error_mess(2,res[1],0);
+			    }
 			},
 			error: function(e) 
-	    	{
+			{
 				$("#error").html(e).fadeIn();
 				console.log(e.responseText);	
-	    	} 
+			} 
 		})
 		return false;
 	});
-	
+
 	
 	$('#searchform').submit(function() {
-		
-		var no = $("#tno").val();
-		var dates = $("#ds1").val();
-		var param = ['searching',no,dates];
+		var date = $("#ds1").val();
+		var docno = $("#cregist_search").val();
+		// var origin = $("#ccontract_search").val();
+		var param = ['searching',docno];
 		
 		$.ajax({
 			type: 'POST',
 			url: $(this).attr('action'),
 			data:  new FormData(this),
 			contentType: false,
-    	cache: false,
+      cache: false,
 			processData:false,
 			success: function(data) {
 				
 				if (!param[1]){ param[1] = 'null'; }
-				if (!param[2]){ param[2] = 'null'; }
+				// if (!param[2]){ param[2] = 'null'; }
 				load_data_search(param);
 			}
 		})
@@ -269,35 +311,43 @@ $(document).ready(function (e) {
 		swal('Error Load Data...!', "", "error");
 		
 	});
+
+		// fungsi ajax form sales
+		$('#ajaxtransform,#ajaxtransform1,#ajaxtransform2').submit(function() {
+
+			$.ajax({
+				type: 'POST',
+				url: $(this).attr('action'),
+				data:  new FormData(this),
+				contentType: false,
+				cache: false,
+				processData:false,
+				success: function(data) {
+					
+					res = data.split("|");
+					if (res[0] == "true")
+					{   
+						// location.reload();
+						// console.log(res[1]);
+						error_mess(1,res[1],0);
+						setTimeout(location.reload(), 1500);
+						
+					}
+					else if (res[0] == 'warning'){ error_mess(2,res[1],0); }
+					else{ error_mess(3,res[1],0); }
+				},
+				error: function(e) 
+				{
+					$("#error").html(e).fadeIn();
+					console.log(e.responseText);	
+				} 
+			})
+			return false;
+		});
+	
 		
 // document ready end	
 });
-
-   // get sounding
-	function get_sounding(){
-
-			$(document).ready(function (e) {
-				
-				var tank = $("#ctank").val();
-				var height = $("#tacorr").val();
-				var temp = $("#ttemp").val();
-	
-				$.ajax({
-					type: 'POST',
-					url: sites+"/get_massa/"+tank+"/"+height+"/"+temp,
-					cache: false,
-					headers: { "cache-control": "no-cache" },
-					success: function(result) {
-
-						res = result.split("|");
-						if (res[0] == "true"){ $("#hnetkg,#hbegin").val(res[1]); $("#tnetkg").val(formatNumber(res[1])); $("#hobv").val(res[2]); $("#tobv").val(formatNumber(res[2]));  }
-						else{ $("#tnetkg").val('0');  error_mess(3,res[1],0); }
-					}
-				})
-				return false;	
-			});
-	}
-
 
 	function load_data_search(search=null)
 	{
@@ -306,17 +356,17 @@ $(document).ready(function (e) {
 			var oTable = $('#datatable-buttons').dataTable();
 			var stts = 'btn btn-danger';
 			
-	//		console.log(source+"/"+search[0]+"/"+search[1]+"/"+search[2]);
+        // console.log(source+"/"+search[0]+"/"+search[1]+"/"+search[2]+"/"+search[3]);
 
 		    $.ajax({
 				type : 'GET',
-				url: source+"/"+search[0]+"/"+search[1]+"/"+search[2],
+				url: source+"/"+search[0]+"/"+search[1],
 				//force to handle it as text
 				contentType: "application/json",
 				dataType: "json",
 				success: function(s) 
 				{   
-				   //    console.log(s);
+				       console.log(s);
 					  
 						oTable.fnClearTable();
 						$(".chkselect").remove()
@@ -324,23 +374,21 @@ $(document).ready(function (e) {
 		$("#chkbox").append('<input type="checkbox" name="newsletter" value="accept1" onclick="cekall('+s.length+')" id="chkselect" class="chkselect">');
 							
 		for(var i = 0; i < s.length; i++) {
-			if (s[i][7] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }	
+			if (s[i][6] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }
 			oTable.fnAddData([
-'<input type="checkbox" name="cek[]" value="'+s[i][0]+'" id="cek'+i+'" style="margin:0px"  />',
-						i+1,
-						s[i][1],
-						s[i][3],
-						s[i][2],
-						s[i][6],
+'<input type="checkbox" class="cek" name="cek[]" value="'+s[i][0]+'" id="cek'+i+'" style="margin:0px"  />',
+						  i+1,
+						  s[i][1],
+						  s[i][2],
+						  s[i][3]+"<br/>"+s[i][4],
+						  s[i][5]+"<br/>"+s[i][6],
+						  s[i][7]+"<br/>"+s[i][8],
+						  
 '<div class="btn-group" role"group">'+
-'<a href="" class="'+stts+' btn-xs primary_status" id="' +s[i][0]+ '" title="Primary Status"> <i class="fa fa-power-off"> </i> </a> '+
-'<a href="" class="btn btn-warning btn-xs text-invoice" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a>'+
-// '<a href="" class="btn btn-warning btn-xs text-balance" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-money"> </i> </a>'+
-'<a href="" class="btn btn-primary btn-xs text-primary" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-edit"> </i> </a>'+
-'<a href="#" class="btn btn-danger btn-xs text-danger" id="'+s[i][0]+'" title="delete"> <i class="fa fas-2x fa-trash"> </i> </a>'+
+'<a href="" class="btn btn-warning btn-xs text-ledger" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a> '+
 '</div>'
-								]);										
-							} // End For 
+							  ]);										
+							  } // End For 
 											
 				},
 				error: function(e){
@@ -369,7 +417,7 @@ $(document).ready(function (e) {
 				dataType: "json",
 				success: function(s) 
 				{   
-				      // console.log(s);
+				       console.log(s);
 					  
 						oTable.fnClearTable();
 						$(".chkselect").remove()
@@ -377,20 +425,18 @@ $(document).ready(function (e) {
 		$("#chkbox").append('<input type="checkbox" name="newsletter" value="accept1" onclick="cekall('+s.length+')" id="chkselect" class="chkselect">');
 							
 							for(var i = 0; i < s.length; i++) {
-						  if (s[i][7] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }	
+						  if (s[i][6] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }
 						  oTable.fnAddData([
-'<input type="checkbox" name="cek[]" value="'+s[i][0]+'" id="cek'+i+'" style="margin:0px"  />',
+        '<input type="checkbox" class="cek" name="cek[]" value="'+s[i][0]+'" id="cek'+i+'" style="margin:0px"  />',
 										i+1,
 										s[i][1],
-										s[i][3],
 										s[i][2],
-										s[i][6],
+										s[i][3]+"<br/>"+s[i][4],
+										s[i][5]+"<br/>"+s[i][6],
+										s[i][7]+"<br/>"+s[i][8],
+										
 '<div class="btn-group" role"group">'+
-'<a href="" class="'+stts+' btn-xs primary_status" id="' +s[i][0]+ '" title="Primary Status"> <i class="fa fa-power-off"> </i> </a> '+
-'<a href="" class="btn btn-warning btn-xs text-invoice" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a>'+
-// '<a href="" class="btn btn-warning btn-xs text-balance" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-money"> </i> </a>'+
-'<a href="" class="btn btn-primary btn-xs text-primary" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-edit"> </i> </a>'+
-'<a href="#" class="btn btn-danger btn-xs text-danger" id="'+s[i][0]+'" title="delete"> <i class="fa fas-2x fa-trash"> </i> </a>'+
+'<a href="" class="btn btn-warning btn-xs text-ledger" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a> '+
 '</div>'
 										    ]);										
 											} // End For 
@@ -398,7 +444,7 @@ $(document).ready(function (e) {
 				},
 				error: function(e){
 				   oTable.fnClearTable();  
-				   //console.log(e.responseText);	
+				   console.log(e.responseText);	
 				}
 				
 			});  // end document ready	
@@ -411,11 +457,17 @@ $(document).ready(function (e) {
 	{  
 	   $(document).ready(function (e) {
 		  // reset form
-		  $("#tcode, #tno, #tname, #talias").val("");
-		  $("#cclassi option:selected").prop("selected", false);
-		  $("#ccur option:selected").prop("selected", false);
-		  $("#cactive option:checked").prop("selected", false);
-		  $("#cbank option:checked").prop("selected", false);
+		  // $("#tno, #tmodel, #tsku").val("");
+			// $("#catimg").attr("src","");
+			$("#breset").click();
 	  });
+	}
+	
+	function set_empty(ck,target){
+		$(document).ready(function (e) {
+
+			console.log(ck);
+
+		})
 	}
 	

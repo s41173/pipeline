@@ -1,7 +1,9 @@
-<?php
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 class Sounding_model extends Custom_Model
-{   
+{
+    protected $logs;
+    
     function __construct()
     {
         parent::__construct();
@@ -12,13 +14,7 @@ class Sounding_model extends Custom_Model
         $this->field = $this->db->list_fields($this->tableName);
     }
     
-    protected $field;
-    
-    function count()
-    {
-        //method untuk mengembalikan nilai jumlah baris dari database.
-        return $this->db->count_all($this->table);
-    }
+    protected $com,$field;
     
     function get_last($limit, $offset=null)
     {
@@ -29,43 +25,76 @@ class Sounding_model extends Custom_Model
         $this->db->limit($limit, $offset);
         return $this->db->get(); 
     }
-
-    function search($no=null,$dates=null)
-    {
+    
+    function search($regid=null)
+    {   
         $this->db->select($this->field);
-        $this->db->from($this->tableName);
-//        $this->cek_null_string($code, 'doctype');
-        $this->cek_null_string($no, 'docno');
-        $this->cek_null_string(picker_split2($dates), 'DATE(dates)');
-        $this->db->order_by('dates','asc');
+        $this->db->from($this->tableName); 
+        $this->db->where('deleted', $this->deleted);
+        $this->cek_null_string($regid, 'registration_id');
+//        $this->cek_null_string($origin, 'contract_id');
+//        $this->cek_null_string($type, 'type');
+        $this->db->order_by('id', 'desc'); 
         return $this->db->get(); 
     }
     
-    function report($cur=null,$tank=null,$start=null,$end=null)
+    function get_by_registration($register)
     {
         $this->db->select($this->field);
-        $this->db->from($this->tableName);
-        $this->cek_null($cur, 'currency');
-        $this->cek_null($tank, 'tank_id');
-        $this->between('dates', $start, $end);
-        $this->db->where('approved', 1);
-        $this->db->order_by('dates','asc');
+        $this->db->from($this->tableName); 
+        $this->db->where('deleted', $this->deleted);
+        $this->db->where('registration_id', $register);
+        $this->db->order_by('id', 'asc'); 
         return $this->db->get(); 
     }
     
-    private function cek_between($start,$end)
-    {
-        if ($start == null || $end == null ){return null;}
-        else { return $this->db->where("dates BETWEEN '".$start."' AND '".$end."'"); }
+    function get_supplier(){
+        $this->db->select($this->field);
+        $this->db->from($this->tableName); 
+        $this->db->where('deleted', $this->deleted);
+        $this->db->order_by('supplier', 'asc'); 
+        $this->db->distinct();
+        $val = $this->db->get()->result();
+        if ($val){ foreach($val as $row){$data['options'][$row->supplier] = strtoupper($row->supplier);} }
+        else { $data['options'][''] = '--'; }        
+        return $data;
     }
+             
+    function report($start=null,$end=null)
+    {   
+        $this->db->select('reg.id as id, reg.code, reg.docno, reg.dates, reg.type, reg.validation, reg.approved, reg.qc_status, '
+                . 'sounding.type, sounding.source_cm, sounding.to_cm, sounding.source_temp, sounding.to_temp,'
+                . 'sounding.source_tonase, sounding.to_tonase, sounding.created');
+        
+        $this->db->from('registration as reg, tank_sounding as sounding');
+        $this->db->where('reg.id = sounding.registration_id');
+        $this->db->where('reg.deleted', $this->deleted);
+//        $this->cek_nol($status, 'status');
+//        $this->cek_null($cust, 'cust_id');
+        $this->between('reg.dates', $start, $end);
+        $this->db->order_by('id', 'asc'); 
+        return $this->db->get(); 
+    }
+    
     
     function counter()
     {
-       $this->db->select_max('id');
-       $query = $this->db->get($this->tableName)->row_array(); 
-       return intval($query['id']); 
+        $this->db->select_max('id');
+        $test = $this->db->get($this->tableName)->row_array();
+        $userid=$test['id'];
+	$userid = intval($userid+1);
+	return $userid;
     }
     
+    function max_id()
+    {
+        $this->db->select_max('id');
+        $test = $this->db->get($this->tableName)->row_array();
+        $userid=$test['id'];
+	$userid = intval($userid);
+	return $userid;
+    }    
+
 }
 
 ?>

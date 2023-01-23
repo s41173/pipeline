@@ -32,8 +32,33 @@ class Qc extends MX_Controller
     
     function index(){
         $this->session->unset_userdata('start'); $this->session->unset_userdata('end'); 
-        echo 'qc';
-//        $this->get_last(); 
+        $this->get_last(); 
+    }
+    
+    public function getdatatable($search=null,$docno='null',$origin='null')
+    {
+        if ($search != null){ $result = $this->model->search($docno,$origin)->result(); }
+        else{ $result = $this->model->get_last($this->modul['limit'])->result(); }
+        
+        $output = null;
+        if ($result){
+          
+         foreach($result as $res)
+	 {
+           $register = $this->registration->get_by_id($res->registration_id)->row();  
+           $contract = $this->contract->get_by_id($res->contract_id)->row();
+	   $output[] = array ($res->id, $register->docno, $contract->origin_no, $res->supplier,
+                              strtoupper($res->gk_no), $res->ffa, $res->moist, $res->imp, $res->description,
+                              tglincompletetime($res->created,1));
+	 } 
+         
+         $this->output
+              ->set_status_header(200)
+              ->set_content_type('application/json', 'utf-8')
+              ->set_output(json_encode($output))
+              ->_display();
+             exit;  
+        }
     }
     
     function get_last()
@@ -42,7 +67,7 @@ class Qc extends MX_Controller
 
         $data['title'] = $this->properti['name'].' | Administrator  '.ucwords('Tank Manager');
         $data['h2title'] = $this->components->get_title($this->title);
-        $data['main_view'] = 'registration_view';
+        $data['main_view'] = 'qc_view';
 	$data['form_action'] = site_url($this->title.'/add_process');
         $data['form_action_update'] = site_url($this->title.'/update_process');
         $data['form_action_del'] = site_url($this->title.'/delete_all');
@@ -50,12 +75,11 @@ class Qc extends MX_Controller
         $data['form_action_import'] = site_url($this->title.'/import');
         $data['link'] = array('link_back' => anchor('main/','Back', array('class' => 'btn btn-danger')));
 
-        $data['tank'] = $this->tank->combo_api();
-        $data['srctank'] = $this->model->get_src_tank();
+        $data['contract'] = $this->contract->get_contract_combo();
+        $data['docno'] = $this->registration->get_docno_combo();
         $data['array'] = array('','');
         $data['month'] = combo_month();
         $data['default']['month'] = date('m');
-        $data['code'] = $this->model->counter().mt_rand(99,9999);
         
 	// ---------------------------------------- //
  
@@ -72,7 +96,7 @@ class Qc extends MX_Controller
         $this->table->set_empty("&nbsp;");
 
         //Set heading untuk table
-        $this->table->set_heading('#','No', 'Type', 'Code', 'Doc-No', 'Dates', 'Tank Farm', 'Transfer Period', 'Action');
+        $this->table->set_heading('#','No', 'Doc-No', 'Origin', 'Supplier', 'GK No', 'Ffa', 'Moist', 'Imp', 'Description', 'Action');
 
         $data['table'] = $this->table->generate();
         $data['source'] = site_url($this->title.'/getdatatable');
@@ -128,7 +152,7 @@ class Qc extends MX_Controller
     function add_item($regid=0)
     {
         $this->form_validation->set_rules('ccontract', 'Origin No', 'required');
-        $this->form_validation->set_rules('csupplier', 'Supplier', 'required');
+        $this->form_validation->set_rules('csupplier', 'Supplier', '');
         $this->form_validation->set_rules('tnogk', 'NO GK', 'required');
         $this->form_validation->set_rules('tffa', 'FFA', 'required');
         $this->form_validation->set_rules('tmoist', 'MOIST', 'required');
@@ -191,10 +215,10 @@ class Qc extends MX_Controller
 
 //        Property Details
         $data['company'] = $this->properti['name'];
-        $data['reports'] = $this->model->report($this->input->post('ccustomer'), $this->input->post('cstatustype'), $this->input->post('cperiodtype'),$start,$end)->result();
+        $data['reports'] = $this->model->report($start,$end)->result();
         
-        if ($this->input->post('ctype') == 0){ $this->load->view('contract_report', $data); }
-        else { $this->load->view('contract_pivot', $data); }
+        if ($this->input->post('ctype') == 0){ $this->load->view('qc_report', $data); }
+        else { $this->load->view('qc_pivot', $data); }
     }
         
 }

@@ -26,6 +26,18 @@ class Qc_model extends Custom_Model
         return $this->db->get(); 
     }
     
+    function search($regid=null,$origin=null)
+    {   
+        $this->db->select($this->field);
+        $this->db->from($this->tableName); 
+        $this->db->where('deleted', $this->deleted);
+        $this->cek_null_string($regid, 'registration_id');
+        $this->cek_null_string($origin, 'contract_id');
+//        $this->cek_null_string($type, 'type');
+        $this->db->order_by('id', 'desc'); 
+        return $this->db->get(); 
+    }
+    
     function get_by_registration($register)
     {
         $this->db->select($this->field);
@@ -47,39 +59,24 @@ class Qc_model extends Custom_Model
         else { $data['options'][''] = '--'; }        
         return $data;
     }
-    
-    function search($date=null,$cust=null)
+             
+    function report($start=null,$end=null)
     {   
-        $this->db->select($this->field);
-        $this->db->from($this->tableName); 
-        $this->db->where('deleted', $this->deleted);
-        $this->cek_null_string($date, 'dates');
-        $this->cek_null_string($cust, 'cust_id');
-//        $this->cek_null_string($type, 'type');
-        $this->db->order_by('id', 'desc'); 
-        return $this->db->get(); 
-    }
-            
-    function report($cust=null,$status=null,$period=null,$start=null,$end=null)
-    {   
-        $this->db->select($this->field);
-        $this->db->from($this->tableName); 
-        $this->db->where('deleted', $this->deleted);
-        $this->cek_nol($status, 'status');
-        $this->cek_null($cust, 'cust_id');
-        if ($period == 0){ $this->cek_between($start, $end); }
-        elseif ($period == 1){ $this->cek_between($start, $end, 'starts'); }
-        elseif ($period == 2){ $this->cek_between($start, $end, 'ends'); }
+        $this->db->select('reg.id as id, reg.code, reg.docno, reg.dates, reg.type, reg.validation, reg.approved, reg.qc_status, '
+                . 'contract.origin_no,'
+                . 'qc.supplier, qc.gk_no, qc.ffa, qc.moist, qc.imp, qc.description');
         
+        $this->db->from('registration as reg, qc_gk as qc, contract_item as contract');
+        $this->db->where('reg.id = qc.registration_id');
+        $this->db->where('contract.id = qc.contract_id');
+        $this->db->where('reg.deleted', $this->deleted);
+//        $this->cek_nol($status, 'status');
+//        $this->cek_null($cust, 'cust_id');
+        $this->between('reg.dates', $start, $end);
         $this->db->order_by('id', 'asc'); 
         return $this->db->get(); 
     }
     
-    private function cek_between($start,$end,$type='dates')
-    {
-        if ($start == null || $end == null ){return null;}
-        else { return $this->db->where($this->tableName.".".$type." BETWEEN '".$start."' AND '".$end."'"); }
-    }
     
     function counter()
     {

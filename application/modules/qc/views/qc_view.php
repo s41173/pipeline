@@ -8,7 +8,7 @@
 <link href="<?php echo base_url(); ?>js/datatables/dataTables.tableTools.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo base_url(); ?>css/icheck/flat/green.css" rel="stylesheet" type="text/css">
 
-<script src="<?php echo base_url(); ?>js/moduljs/registration.js"></script>
+<script src="<?php echo base_url(); ?>js/moduljs/qc.js"></script>
 <!--<script src="<?php//echo base_url(); ?>js-old/register.js"></script>-->
 
 <!--canvas js-->
@@ -33,15 +33,15 @@
 
 <script type="text/javascript">
 
-	var sites_add  = "<?php echo site_url('registration/add_process/');?>";
-	var sites_edit = "<?php echo site_url('registration/update_process/');?>";
+	var sites_add  = "<?php echo site_url('qc/add_process/');?>";
+	var sites_edit = "<?php echo site_url('qc/update_process/');?>";
 	var sites_del  = "<?php echo site_url('registration/delete/');?>";
-    var sites_update = "<?php echo site_url('registration/update_all/');?>";
-	var sites_get  = "<?php echo site_url('registration/update/');?>";
-    var sites_details  = "<?php echo site_url('registration/invoice/');?>";
-    var sites_primary  = "<?php echo site_url('registration/confirmation/');?>";
+    var sites_update = "<?php echo site_url('qc/update_all/');?>";
+	var sites_get  = "<?php echo site_url('qc/update/');?>";
+    var sites_details  = "<?php echo site_url('qc/invoice/');?>";
+    var sites_primary  = "<?php echo site_url('qc/confirmation/');?>";
 	var source = "<?php echo $source;?>";
-    var sites  = "<?php echo site_url('registration/');?>";
+    var sites  = "<?php echo site_url('qc/');?>";
         
 </script>
 
@@ -74,16 +74,17 @@
            <form id="searchform" class="form-inline">
               
                <div class="form-group">
-                <label> Customer </label> <br>
-         <?php $js = "class='form-control select2_single' id='ccust_search' tabindex='-1' style='width:210px;' "; 
-         //echo form_dropdown('ccust', $customer, isset($default['']) ? $default[''] : '', $js); ?>
+                <label> Doc-No </label> <br>
+         <?php $js = "class='form-control select2_single' id='cregist_search' tabindex='-1' style='width:240px;' "; 
+         echo form_dropdown('cregister', $docno, isset($default['']) ? $default[''] : '', $js); ?>
               </div>  
-                        
-       <div class="form-group">
-           <label> Dates : </label> <br>
-          <input type="text" title="Date" class="form-control" id="ds1" name="tdates" style="width:100px;" /> 
-       </div>   
-              
+               
+                <div class="form-group">
+                <label> Origin </label> <br>
+    <?php $js = "class='form-control select2_single' id='ccontract_search' tabindex='-1' style='width:280px;' "; 
+    echo form_dropdown('ccontract', $contract, isset($default['']) ? $default[''] : '', $js); ?>
+              </div>  
+                                      
               <div class="btn-group"> <br>
                <button type="submit" class="btn btn-primary button_inline"> Filter </button>
                <button type="reset" onClick="" class="btn btn-success button_inline"> Clear </button>
@@ -125,7 +126,6 @@
                
                <div class="btn-group">  
                <!-- Trigger the modal with a button --> 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal"> <i class="fa fa-plus"></i>&nbsp;Add New </button>
 <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal3"> Report  </button>
                
                <!-- links -->
@@ -138,7 +138,7 @@
     
       <!-- Modal - Add Form -->
       <div class="modal fade" id="myModal" role="dialog">
-         <?php $this->load->view('registration_form'); ?>      
+         <?php //$this->load->view('registration_form'); ?>      
       </div>
       <!-- Modal - Add Form -->
       
@@ -152,7 +152,7 @@
       
       <!-- Modal - Report Form -->
       <div class="modal fade" id="myModal3" role="dialog">
-         <?php //$this->load->view('contract_report_panel'); ?>    
+         <?php $this->load->view('qc_report_panel'); ?>    
       </div>
       <!-- Modal - Report Form -->
               

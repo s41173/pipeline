@@ -21,11 +21,12 @@ class Contract_lib extends Custom_Model{
       return $this->db->get($this->tableName)->result();
     }
     
-    function get_contract_combo($regid){
+    function get_contract_combo($regid=null){
         $this->db->select($this->field);
         $this->db->from($this->tableName); 
         $this->db->where('deleted', $this->deleted);
-        $this->db->where('registration_id', $regid);
+//        $this->db->where('registration_id', $regid);
+        $this->cek_null($regid, 'registration_id');
         $this->db->order_by('origin_no', 'asc'); 
         $val = $this->db->get()->result();
         if ($val){ foreach($val as $row){$data['options'][$row->id] = strtoupper($row->origin_no);} }

@@ -289,8 +289,9 @@ $(document).ready(function (e) {
 	
 	$('#searchform').submit(function() {
 		var date = $("#ds1").val();
-		var cust = $("#ccust_search").val();
-		var param = ['searching',date,cust];
+		var docno = $("#cregist_search").val();
+		var origin = $("#ccontract_search").val();
+		var param = ['searching',docno,origin];
 		
 		$.ajax({
 			type: 'POST',
@@ -373,27 +374,24 @@ $(document).ready(function (e) {
 		$("#chkbox").append('<input type="checkbox" name="newsletter" value="accept1" onclick="cekall('+s.length+')" id="chkselect" class="chkselect">');
 							
 		for(var i = 0; i < s.length; i++) {
-			if (s[i][7] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }
+			if (s[i][6] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }
 			oTable.fnAddData([
 '<input type="checkbox" class="cek" name="cek[]" value="'+s[i][0]+'" id="cek'+i+'" style="margin:0px"  />',
-						i+1,
-						'CO-0'+s[i][0],
-						s[i][1],
-						s[i][2],
-						s[i][3],
-						s[i][4]+' - '+s[i][5],
-						s[i][7],
-						s[i][8],
-						s[i][9],
-						
+						  i+1,
+						  s[i][1],
+						  s[i][2],
+						  s[i][3],
+						  s[i][4],
+						  s[i][5],
+						  s[i][6],
+						  s[i][7],
+						  s[i][8],
+						  
 '<div class="btn-group" role"group">'+
-'<a href="" class="'+stts+' btn-xs primary_status" id="' +s[i][0]+ '" title="Primary Status"> <i class="fa fa-power-off"> </i> </a> '+
-'<a href="" class="btn btn-primary btn-xs text-primary" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-edit"> </i> </a> '+
 '<a href="" class="btn btn-warning btn-xs text-ledger" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a> '+
-'<a href="#" class="btn btn-danger btn-xs text-danger" id="'+s[i][0]+'" title="delete"> <i class="fa fas-2x fa-trash"> </i> </a>'+
 '</div>'
-								]);										
-							} // End For 
+							  ]);										
+							  } // End For 
 											
 				},
 				error: function(e){
@@ -434,18 +432,17 @@ $(document).ready(function (e) {
 						  oTable.fnAddData([
         '<input type="checkbox" class="cek" name="cek[]" value="'+s[i][0]+'" id="cek'+i+'" style="margin:0px"  />',
 										i+1,
-										s[i][4],
 										s[i][1],
 										s[i][2],
 										s[i][3],
-										s[i][5]+'<br/>'+s[i][6],
-										s[i][7]+'<br/>'+s[i][8],
+										s[i][4],
+										s[i][5],
+										s[i][6],
+										s[i][7],
+										s[i][8],
 										
 '<div class="btn-group" role"group">'+
-'<a href="" class="'+stts+' btn-xs primary_status" id="' +s[i][0]+ '" title="Primary Status"> <i class="fa fa-power-off"> </i> </a> '+
-'<a href="" class="btn btn-primary btn-xs text-primary" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-edit"> </i> </a> '+
 '<a href="" class="btn btn-warning btn-xs text-ledger" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a> '+
-'<a href="#" class="btn btn-danger btn-xs text-danger" id="'+s[i][0]+'" title="delete"> <i class="fa fas-2x fa-trash"> </i> </a>'+
 '</div>'
 										    ]);										
 											} // End For 
