@@ -154,9 +154,29 @@ class Qc extends MX_Controller
         $this->form_validation->set_rules('ccontract', 'Origin No', 'required');
         $this->form_validation->set_rules('csupplier', 'Supplier', '');
         $this->form_validation->set_rules('tnogk', 'NO GK', 'required');
+        
         $this->form_validation->set_rules('tffa', 'FFA', 'required');
         $this->form_validation->set_rules('tmoist', 'MOIST', 'required');
         $this->form_validation->set_rules('timp', 'IMP', 'required');
+        $this->form_validation->set_rules('tiv', 'IV', '');
+        $this->form_validation->set_rules('tmpt', 'MPT', '');
+        $this->form_validation->set_rules('tcolor', 'Color', '');
+        
+        $this->form_validation->set_rules('tffa_from', 'FFA-From', 'required');
+        $this->form_validation->set_rules('tmoist_from', 'MOIST-From', 'required');
+        $this->form_validation->set_rules('timp_from', 'IMP-From', 'required');
+        $this->form_validation->set_rules('tiv_from', 'IV-From', '');
+        $this->form_validation->set_rules('tmpt_from', 'MPT-From', '');
+        $this->form_validation->set_rules('tcolor_from', 'Color-From', '');
+        
+        $this->form_validation->set_rules('tbruto', 'Bruto', 'required|numeric|is_natural_no_zero');
+        $this->form_validation->set_rules('ttara', 'Tara', 'required|numeric|is_natural_no_zero');
+        $this->form_validation->set_rules('tnetto', 'Netto', 'required|numeric|is_natural_no_zero');
+        
+        $this->form_validation->set_rules('tbruto_from', 'Bruto From', 'required|numeric|is_natural_no_zero');
+        $this->form_validation->set_rules('ttara_from', 'Tara From', 'required|numeric|is_natural_no_zero');
+        $this->form_validation->set_rules('tnetto_from', 'Netto From', 'required|numeric|is_natural_no_zero');
+        
         $this->form_validation->set_rules('tdesc', 'Description', '');
         
         $register = $this->registration->get_by_id($regid)->row();
@@ -175,7 +195,25 @@ class Qc extends MX_Controller
                            'ffa' => $this->input->post('tffa'),
                            'moist' => $this->input->post('tmoist'),
                            'imp' => $this->input->post('timp'),
+                           'iv' => $this->input->post('tiv'),
+                           'mpt' => $this->input->post('tmpt'),
+                           'color' => $this->input->post('tcolor'),
+                           'ffa_from' => $this->input->post('tffa_from'),
+                           'moist_from' => $this->input->post('tmoist_from'),
+                           'imp_from' => $this->input->post('timp_from'),
+                           'iv_from' => $this->input->post('tiv_from'),
+                           'mpt_from' => $this->input->post('tmpt_from'),
+                           'color_from' => $this->input->post('tcolor_from'),
+                           'bruto_from' => $this->input->post('tbruto_from'),
+                           'tara_from' => $this->input->post('ttara_from'),
+                           'netto_from' => $this->input->post('tnetto_from'),
+                           'bruto' => $this->input->post('tbruto'),
+                           'tara' => $this->input->post('ttara'),
+                           'netto' => $this->input->post('tnetto'),
                            'description' => $this->input->post('tdesc'),
+                           'vendor_out' => $this->input->post('tdatefrom'),
+                           'dryport_incoming' => $this->input->post('tdateincoming'),
+                           'dryport_outgoing' => $this->input->post('tdateoutcoming'),
                            'created' => date('Y-m-d H:i:s')
                           );
             

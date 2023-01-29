@@ -286,6 +286,27 @@ $(document).ready(function (e) {
 		return false;
 	});
 
+	// calculation bruto from
+	$('#tbruto_from,#ttara_from').keyup(function() 
+	{
+		var bruto = $("#tbruto_from").val();
+		var tara = $("#ttara_from").val();
+		
+		// console.log('Bruto : ',bruto);
+		// console.log('Tara : ',tara);
+		$("#tnetto_from").val(bruto-tara);
+	});
+
+	$('#tbruto,#ttara').keyup(function() 
+	{
+		var bruto = $("#tbruto").val();
+		var tara = $("#ttara").val();
+		
+		// console.log('Bruto : ',bruto);
+		// console.log('Tara : ',tara);
+		$("#tnetto").val(bruto-tara);
+	});
+
 	
 	$('#searchform').submit(function() {
 		var date = $("#ds1").val();

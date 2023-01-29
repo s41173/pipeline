@@ -140,7 +140,8 @@ $atts1 = array(
     
  <!-- searching form -->
            
-   <form id="ajaxtransform1" class="form-inline" method="post" action="<?php echo $form_action_item; ?>">
+   <form id="ajaxtransform1" class="" method="post" action="<?php echo $form_action_item; ?>">
+     <div class="form-inline"> 
       <div class="form-group">
         <label class="control-label labelx"> Contract / Origin </label> <br>
 <?php $js = "class='form-control select2_single' id='ccontract' tabindex='-1' style='width:350px;' "; 
@@ -162,6 +163,83 @@ echo form_dropdown('csupplier', $supplier, isset($default['supplier']) ? $defaul
         <input type="text" name="tnogk" id="tnogk" class="form-control" style="width:150px;" required> &nbsp;
       </div>   
        
+    
+         
+    </div>  <br/>
+<!--  batas inline 1  -->
+       
+     <!-- batas inline 2 -->
+     <fieldset> <legend> From Analysis </legend>
+     <div class="form-inline">
+         
+       <div class="form-group">
+        <label class="control-label labelx"> Bruto </label> <br>
+        <input type="number" name="tbruto_from" id="tbruto_from" class="form-control" style="width:100px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+       
+      <div class="form-group">
+        <label class="control-label labelx"> Tara </label> <br>
+         <input type="number" name="ttara_from" id="ttara_from" class="form-control" style="width:100px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+       
+       <div class="form-group">
+        <label class="control-label labelx"> Netto </label> <br>
+         <input type="number" name="tnetto_from" id="tnetto_from" class="form-control" style="width:100px;" maxlength="10" required value="0"> &nbsp;
+      </div>     
+            
+      <div class="form-group">
+        <label class="control-label labelx"> FFA-(%) </label> <br>
+        <input type="text" name="tffa_from" id="tffa_from" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+       
+      <div class="form-group">
+        <label class="control-label labelx"> MOIST-(%) </label> <br>
+         <input type="text" name="tmoist_from" id="tmoist_from" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+       
+       <div class="form-group">
+        <label class="control-label labelx"> IMP-(%) </label> <br>
+         <input type="text" name="timp_from" id="timp_from" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> IV-(%) </label> <br>
+         <input type="text" name="tiv_from" id="tiv_from" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> MPT-(%) </label> <br>
+         <input type="text" name="tmpt_from" id="tmpt_from" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Color-(%) </label> <br>
+         <input type="text" name="tcolor_from" id="tcolor_from" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+         
+     </div>
+     </fieldset>  <br/> 
+     <!-- batas inline 2 -->   
+    
+     <!-- batas inline 3 -->
+     <fieldset> <legend> Real Analysis </legend>
+     <div class="form-inline">
+         
+       <div class="form-group">
+        <label class="control-label labelx"> Bruto </label> <br>
+        <input type="number" name="tbruto" id="tbruto" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+       
+      <div class="form-group">
+        <label class="control-label labelx"> Tara </label> <br>
+         <input type="number" name="ttara" id="ttara" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+       
+       <div class="form-group">
+        <label class="control-label labelx"> Netto </label> <br>
+         <input type="number" name="tnetto" id="tnetto" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>     
+            
       <div class="form-group">
         <label class="control-label labelx"> FFA-(%) </label> <br>
         <input type="text" name="tffa" id="tffa" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
@@ -176,10 +254,48 @@ echo form_dropdown('csupplier', $supplier, isset($default['supplier']) ? $defaul
         <label class="control-label labelx"> IMP-(%) </label> <br>
          <input type="text" name="timp" id="timp" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
       </div>
-       
+         
       <div class="form-group">
-        <label class="control-label labelx"> Dscription </label> <br>
-         <input type="text" name="tdesc" id="tdesc" class="form-control" style="width:180px;" value=""> &nbsp;
+        <label class="control-label labelx"> IV-(%) </label> <br>
+         <input type="text" name="tiv" id="tiv" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> MPT-(%) </label> <br>
+         <input type="text" name="tmpt" id="tmpt" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Color-(%) </label> <br>
+         <input type="text" name="tcolor" id="tcolor" class="form-control" style="width:80px;" maxlength="10" required value="0"> &nbsp;
+      </div>
+         
+     </div>
+     </fieldset> <br/>  
+     <!-- batas inline 3 -->   
+       
+     <!-- batas inline 4 -->
+     <fieldset> 
+     <div class="form-inline">
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Description </label> <br>
+         <input type="text" name="tdesc" id="tdesc" class="form-control" style="width:250px;" value=""> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Vendor Out </label> <br>
+        <input type="text" class="form-control" name="tdatefrom" id="ds5" value=""> 
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Incoming Dry Port </label> <br>
+        <input type="text" class="form-control" name="tdateincoming" id="ds6" value=""> 
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Outgoing Dry Port </label> <br>
+        <input type="text" class="form-control" name="tdateoutcoming" id="ds7" value=""> 
       </div>
 
       <div class="form-group"> <br>
@@ -188,7 +304,11 @@ echo form_dropdown('csupplier', $supplier, isset($default['supplier']) ? $defaul
        <button type="button" onClick="load_data();" class="btn btn-danger button_inline"> Reset </button>
        </div>
       </div>
-       
+         
+     </div>
+     </fieldset> <br/>  
+     <!-- batas inline 4 -->   
+  
   </form> <br>
 
 

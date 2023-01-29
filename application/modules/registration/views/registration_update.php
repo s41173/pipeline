@@ -284,6 +284,9 @@ echo form_dropdown('cpicqc', $pic_qc, isset($default['pic_qc']) ? $default['pic_
            <?php echo anchor_popup(site_url("registration/get_list/titem/"), '[ ... ]', $atts1); ?>
           <button type="button" id="bgetqty" class="btn btn-success button_inline"> GET </button> &nbsp;
           <input type="hidden" name="hid" value="<?php echo $uid; ?>">
+          <input type="hidden" name="picking_id" id="picking_id">
+          <input type="hidden" name="picking_name" id="picking_name">
+          <input type="hidden" name="partner_name" id="partner_name">
       </div>
       
       <div class="form-group">

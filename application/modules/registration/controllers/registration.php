@@ -48,16 +48,28 @@ class Registration extends MX_Controller
         $contract = $this->wb->request_auth('contract/get_qty', $this->session->userdata('userid'), $param);
         $contract = json_decode($contract, true); 
         
+        // get picking id - picking name
+        $nilai1 = array('limit' => 1, 'offset' => 0, 'search_type'=> 1, 'filter' => $datax['origin']); 
+        $param1 = json_encode($nilai1, JSON_UNESCAPED_SLASHES,true);
+        $contract1 = $this->wb->request_auth('contract', $this->session->userdata('userid'), $param1);
+        $contract1 = json_decode($contract1, true); 
+        
+//        print_r($contract1['result'][0]['picking_id']);
+//        print_r($contract1['result'][0]['picking_name']);
+        
          $response = array(
                 'origin' => $datax['origin'],
                 'amount' => $contract['result'][0]['qty'],
-                'oustanding' => $contract['result'][0]['qty_out_standing']
+                'oustanding' => $contract['result'][0]['qty_out_standing'],
+                'picking_id' => $contract1['result'][0]['picking_id'],
+                'picking_name' => $contract1['result'][0]['picking_name'],
+                'partner_name' => $contract1['result'][0]['partner_name'],
              );
         
          $this->output
         ->set_status_header(200)
         ->set_content_type('application/json', 'utf-8')
-        ->set_output(json_encode($response))
+        ->set_output(json_encode($response,JSON_UNESCAPED_SLASHES,true))
         ->_display();
         exit;
     }
@@ -584,6 +596,9 @@ class Registration extends MX_Controller
         $this->form_validation->set_rules('tcontractqty', 'Contract Qty', 'required|numeric|is_natural_no_zero');
         $this->form_validation->set_rules('toustandingqty', 'Outstanding Qty', 'required|numeric|is_natural_no_zero|callback_valid_transfer_qty');
         $this->form_validation->set_rules('ttransferqty', 'Transfer Qty', 'required|numeric|is_natural_no_zero');
+        $this->form_validation->set_rules('picking_id', 'Picking-ID', 'required');
+        $this->form_validation->set_rules('picking_name', 'Picking-Name', 'required');
+        $this->form_validation->set_rules('partner_name', 'Partner-Name', 'required');
 
         if ($this->form_validation->run($this) == TRUE && $this->valid_confirmation($uid) == TRUE)
         {
@@ -592,6 +607,9 @@ class Registration extends MX_Controller
                            'contract_amount' => $this->input->post('tcontractqty'),
                            'outstanding_amount' => $this->input->post('toustandingqty'),
                            'transfer_amount' => $this->input->post('ttransferqty'),
+                           'picking_id' => $this->input->post('picking_id'),
+                           'picking_name' => $this->input->post('picking_name'),
+                           'partner_name' => $this->input->post('partner_name'),
                            'created' => date('Y-m-d H:i:s')
                           );
             

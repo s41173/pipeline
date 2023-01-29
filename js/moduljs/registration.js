@@ -212,17 +212,19 @@ $(document).ready(function (e) {
             dataType: 'json',
 			success: function(data){
 				// console.log("device control succeeded");
-				console.log(data.amount); 
+				// console.log('Ini data : ',data); 
 				$("#tcontractqty").val(data.amount);
 				$("#toustandingqty").val(data.oustanding);
 				$("#ttransferqty").val(data.oustanding);
+				$("#picking_id").val(data.picking_id);
+				$("#picking_name").val(data.picking_name);
+				$("#partner_name").val(data.partner_name);
 			},
 			error: function(e){
 				console.log("Error posting data");
 			}
 		});
 	});
-
 
 	// delete item sounding
     $(document).on('click','.text-remove-sounding',function(e)
