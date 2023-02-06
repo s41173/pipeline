@@ -104,6 +104,37 @@ class Contract_lib extends Custom_Model{
        if ($query > 0) { return FALSE; } else { return TRUE; }
     } 
     
+    function set_picking_truck($id,$truckid){
+        $value1 = array('picking_truck_id' => $truckid);
+        $this->db->where('id', $id);
+        return $this->db->update($this->tableName, $value1); 
+    }
+    
+    function get_picking_truck($id){
+        $this->db->select($this->field);
+        $this->db->where('id', $id);
+        $query = $this->db->get($this->tableName)->row();
+        return $query->picking_truck_id;
+    }
+    
+    function summary($regid){
+        $this->db->select_sum('contract_amount');
+        $this->db->select_sum('outstanding_amount');
+        $this->db->select_sum('transfer_amount');
+        $this->db->select_sum('netto_from');
+        $this->db->where('registration_id', $regid);
+        return $this->db->get($this->tableName)->row_array();
+    }
+    
+    function valid_based_reg($origin,$regid){
+        $this->db->select($this->field);
+        $this->db->where('registration_id', $regid); 
+        $this->db->where('origin_no', $origin); 
+        $this->db->where('deleted', $this->deleted);
+        $query = $this->db->get($this->tableName)->num_rows();
+        if ($query > 0){ return FALSE; }else{ return TRUE; }
+    }
+    
 }
 
 /* End of file Property.php */

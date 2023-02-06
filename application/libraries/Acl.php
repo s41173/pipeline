@@ -15,11 +15,20 @@ class Acl {
 
     public function otentikasi()
     { 
-//        print_r($this->ci->session->userdata('userid'));
-        $request = $this->wb->request_auth('authentication/decode', $this->ci->session->userdata('userid'), null, 1, 'GET');
-        if (intval($request[1]) != 200){
-            redirect('login');
+       try {
+        if ($this->ci->session->userdata('userid')){
+          $request = $this->wb->request_auth('authentication/decode', $this->ci->session->userdata('userid'), null, 1, 'GET');
+          if (intval($request[1]) != 200){
+             redirect('login');
+          }
         }
+        else{ redirect('login'); }
+      }
+      //catch exception
+      catch(Exception $e) {
+//        echo 'Error Message: ' .$e->getMessage();
+          redirect('login');
+      }
 //      $userid = $this->admin->get_id($this->ci->session->userdata('username'));  
 //      if ($this->ci->session->userdata('login') != TRUE || $this->login->valid($userid, $this->ci->session->userdata('log')) != TRUE )
 //      {  redirect('login'); } 
@@ -27,6 +36,23 @@ class Acl {
 
     function otentikasi1($title,$ajax=null)
     {
+      try {
+        if ($this->ci->session->userdata('userid')){
+          $request = $this->wb->request_auth('authentication/decode', $this->ci->session->userdata('userid'), null, 1, 'GET');
+          if (intval($request[1]) != 200){
+            return FALSE;
+          }else{ return TRUE; }
+        }
+        else{ return FALSE; }
+      }
+      //catch exception
+      catch(Exception $e) {
+//        echo 'Error Message: ' .$e->getMessage();
+          return FALSE;
+      }
+        
+       
+        
 //        $this->ci->db->select('id, name, publish, status, aktif, limit, role');
 //        $this->ci->db->where('name', $title);
 //        $mod = $this->ci->db->get('modul')->row();
@@ -45,7 +71,7 @@ class Acl {
 //           }
 //        }
 //         else {return TRUE;}
-        return TRUE;
+//        return TRUE;
     }
 
     function otentikasi2($title,$ajax=null)

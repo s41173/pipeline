@@ -10,7 +10,7 @@ class Wb_lib extends Custom_Model {
     {
         $this->deleted = $deleted;
 //        $this->login = new Member_login_lib();
-        $this->url = "http://192.168.64.2/pgci/index.php/";
+        $this->url = "http://36.92.181.10:7736/oddomw/";
     }
 
     private $login;

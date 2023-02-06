@@ -9,6 +9,8 @@ class Configuration extends MX_Controller
         $this->load->model('Configuration_model', '', TRUE);
 
         $this->properti = $this->property->get();
+//        $this->acl->otentikasi();
+        $this->acl = new Acl();
         $this->acl->otentikasi();
 
         $this->modul = $this->components->get(strtolower(get_class($this)));

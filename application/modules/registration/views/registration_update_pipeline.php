@@ -201,15 +201,8 @@ echo form_dropdown('cpickinra', $pic_kinra, isset($default['pic_kinra']) ? $defa
         
 <!-- payment method2 -->
     <div class="col-md-2 col-sm-12 col-xs-12">
-          <label class="control-label labelx"> QC-FFA </label>
-          <input type="text" class="form-control" id="" name="tqcffa" title="" value="<?php echo isset($default['ffa']) ? $default['ffa'] : '' ?>">
-          
-          <label class="control-label labelx"> QC-M </label>        
-<input type="text" class="form-control" id="" name="tqcm" title="" value="<?php echo isset($default['m']) ? $default['m'] : '' ?>">
-        
-         <label class="control-label labelx"> QC-I </label>        
-<input type="text" class="form-control" id="" name="tqci" title="" value="<?php echo isset($default['i']) ? $default['i'] : '' ?>">
-        
+
+
  <label class="control-label labelx"> QC-Status </label>
   <select class="form-control" name="cqcstatus">
       <option value="0"<?php echo set_select('cqcstatus', '0', isset($default['qcstatus']) && $default['qcstatus'] == '0' ? TRUE : FALSE); ?>> OK </option>
@@ -236,25 +229,115 @@ echo form_dropdown('cpicqc', $pic_qc, isset($default['pic_qc']) ? $default['pic_
         </td>
     </tr>
 </table>  
+        
+     <label class="control-label labelx"> Description </label>
+<textarea id="" name="tdesc" style="min-width:100%;" rows="2"><?php echo isset($default['desc']) ? $default['desc'] : '' ?></textarea>     
           
     </div>
 <!-- payment method2 -->
         
         
-<!-- div alamat penagihan -->
-       <div class="col-md-4 col-sm-12 col-xs-12">
-               
-          <label class="control-label labelx"> Description </label>
-<textarea id="" name="tdesc" style="width:100%;" rows="2"><?php echo isset($default['desc']) ? $default['desc'] : '' ?></textarea>     
-       </div>
-<!-- div alamat penagihan -->
-
+        
 </div>
 <!-- form atas   -->
+        
+<!-- form bawah -->
+        
+<div class="row">
+    
+<div class="col-md-12 col-sm-12 col-xs-12">
+     <h3> QC &amp; Weighing </h3> <hr/>
+    
+ <!-- batas inline 2 -->
+     <fieldset> <legend> From Analysis </legend>
+     <div class="form-inline">
+                
+       <div class="form-group">
+        <label class="control-label labelx"> Netto </label> <br>
+         <input type="number" name="tnetto_from" id="tnetto_from" class="form-control" style="width:100px;" maxlength="10" required value="<?php echo isset($default['netto_from']) ? $default['netto_from'] : '0' ?>"> &nbsp;
+      </div>     
+            
+      <div class="form-group">
+        <label class="control-label labelx"> FFA-(%) </label> <br>
+        <input type="text" name="tffa_from" id="tffa_from" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['ffa_from']) ? $default['ffa_from'] : '0' ?>"> &nbsp;
+      </div>
+       
+      <div class="form-group">
+        <label class="control-label labelx"> MOIST-(%) </label> <br>
+         <input type="text" name="tmoist_from" id="tmoist_from" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['m_from']) ? $default['m_from'] : '0' ?>"> &nbsp;
+      </div>
+       
+       <div class="form-group">
+        <label class="control-label labelx"> IMP-(%) </label> <br>
+         <input type="text" name="timp_from" id="timp_from" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['imp_from']) ? $default['imp_from'] : '0' ?>"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> IV-(%) </label> <br>
+         <input type="text" name="tiv_from" id="tiv_from" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['iv_from']) ? $default['iv_from'] : '0' ?>"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> MPT-(%) </label> <br>
+         <input type="text" name="tmpt_from" id="tmpt_from" class="form-control" style="width:80px;" maxlength="10"  value="<?php echo isset($default['mpt_from']) ? $default['mpt_from'] : '0' ?>"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Color-(%) </label> <br>
+         <input type="text" name="tcolor_from" id="tcolor_from" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['color_from']) ? $default['color_from'] : '0' ?>"> &nbsp;
+      </div>
+         
+     </div>
+     </fieldset>  <br/> 
+     <!-- batas inline 2 -->  
+    
+     <!-- batas inline 3 -->
+     <fieldset> <legend> Real Analysis </legend>
+     <div class="form-inline">  
+            
+      <div class="form-group">
+        <label class="control-label labelx"> FFA-(%) </label> <br>
+        <input type="text" name="tffa" id="tffa" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['ffa']) ? $default['ffa'] : '0' ?>"> &nbsp;
+      </div>
+       
+      <div class="form-group">
+        <label class="control-label labelx"> MOIST-(%) </label> <br>
+         <input type="text" name="tmoist" id="tmoist" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['m']) ? $default['m'] : '0' ?>"> &nbsp;
+      </div>
+       
+       <div class="form-group">
+        <label class="control-label labelx"> IMP-(%) </label> <br>
+         <input type="text" name="timp" id="timp" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['i']) ? $default['i'] : '0' ?>"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> IV-(%) </label> <br>
+         <input type="text" name="tiv" id="tiv" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['iv']) ? $default['iv'] : '0' ?>"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> MPT-(%) </label> <br>
+         <input type="text" name="tmpt" id="tmpt" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['mpt']) ? $default['mpt'] : '0' ?>"> &nbsp;
+      </div>
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Color-(%) </label> <br>
+         <input type="text" name="tcolor" id="tcolor" class="form-control" style="width:80px;" maxlength="10" value="<?php echo isset($default['color']) ? $default['color'] : '0' ?>"> &nbsp;
+      </div>
+         
+     </div>
+     </fieldset> <br/>  
+     <!-- batas inline 3 -->   
+     
+</div>
+    
+</div>
+        
+<!-- form bawah -->
       
       <div class="ln_solid"></div>
       <div class="form-group">
-        <div class="col-md-4 col-sm-3 col-xs-12 col-md-offset-10">
+        <div class="col-md-3 col-sm-3 col-xs-12 col-md-offset-9">
           <div class="btn-group">    
           <button type="submit" class="btn btn-success" id="button"> Save </button>
           <button type="reset" class="btn btn-danger" id=""> Cancel </button>
@@ -290,17 +373,23 @@ echo form_dropdown('cpicqc', $pic_qc, isset($default['pic_qc']) ? $default['pic_
       </div>
       
       <div class="form-group">
-        <label class="control-label labelx"> Contract-Qty </label> <br>
+        <label class="control-label labelx"> Qty-Contract </label> <br>
         <input type="number" name="tcontractqty" id="tcontractqty" readonly class="form-control" style="width:130px;" maxlength="5" required value="0"> &nbsp;
       </div>   
        
       <div class="form-group">
-        <label class="control-label labelx"> Outstanding-Qty </label> <br>
+        <label class="control-label labelx"> Qty-Outstanding </label> <br>
         <input type="number" name="toustandingqty" id="toustandingqty" readonly class="form-control" style="width:130px;" maxlength="10" required value="0"> &nbsp;
       </div>
        
+       <div class="form-group">
+        <label class="control-label labelx"> Qty-Sent </label> <br>
+         <input type="number" name="tfromqty" id="tfromqty" class="form-control" style="width:130px;" maxlength="10" required value="0"> &nbsp;
+      </div>   
+         
+       
       <div class="form-group">
-        <label class="control-label labelx"> Transfer-Qty </label> <br>
+        <label class="control-label labelx"> Qty-Received </label> <br>
          <input type="number" name="ttransferqty" id="ttransferqty" class="form-control" style="width:130px;" maxlength="10" required value="0"> &nbsp;
       </div>
 
@@ -327,7 +416,8 @@ echo form_dropdown('cpicqc', $pic_qc, isset($default['pic_qc']) ? $default['pic_
             <th class="column-title"> Origin </th>
             <th class="column-title"> Contract Qty </th>
             <th class="column-title"> Outstanding Qty </th>
-            <th class="column-title"> Transfer Qty </th>
+            <th class="column-title"> Sent-From Qty </th>
+            <th class="column-title"> Received Qty </th>
             <th class="column-title no-link last"><span class="nobr">Action</span>
             </th>
             <th class="bulk-actions" colspan="7">
@@ -351,6 +441,7 @@ echo form_dropdown('cpicqc', $pic_qc, isset($default['pic_qc']) ? $default['pic_
                         <td>".$res->origin_no."</td>
                         <td>".num_format($res->contract_amount)."</td>
                         <td>".num_format($res->outstanding_amount)."</td>
+                        <td>".num_format($res->netto_from)."</td>
                         <td>".num_format($res->transfer_amount)."</td>
 <td class=\" last\"> 
 <a class=\"btn btn-danger btn-xs text-remove\" id=\"".$res->id."\"> <i class=\"fa fas-2x fa-trash\"> </i> </a> 
@@ -363,6 +454,19 @@ echo form_dropdown('cpicqc', $pic_qc, isset($default['pic_qc']) ? $default['pic_
         ?> 
 
         </tbody>
+        <thead>
+          <tr class="headings">
+            <th class="column-title">  </th>
+            <th class="column-title"> Summary : </th>
+            <th class="column-title"> <?php echo num_format($contract_sum); ?> </th>
+            <th class="column-title"> <?php echo num_format($outstanding_sum); ?> </th>
+            <th class="column-title"> <?php echo num_format($netto_sum); ?> </th>
+            <th class="column-title"> <?php echo num_format($transfer_sum); ?> </th>
+            <th class="column-title"> </th>
+            <th class="bulk-actions" colspan="7"></th>
+          </tr>
+        </thead>
+
       </table>
     </div>
     </div>

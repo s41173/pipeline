@@ -28,6 +28,7 @@ class Main extends MX_Controller
 
     function index()
     {       
+//          $this->acl->otentikasi();
 	  $this->main_panel();
 //        echo 'ini main';
 //        print_r($this->session->userdata('userid'));
@@ -45,6 +46,7 @@ class Main extends MX_Controller
     
     function main_panel()
     {
+       $this->acl->otentikasi();
        $data['name'] = $this->properti['name'];
        $data['title'] = $this->properti['name'].' | Administrator  '.ucwords('Main Panel');
        $data['h2title'] = "Main Panel";
@@ -178,7 +180,7 @@ class Main extends MX_Controller
     function ar_chart()
     {        
          $datax = array();
-         $postdata = json_encode(array('limit' => 50, 'offset' => 0));
+         $postdata = json_encode(array('limit' => 100, 'offset' => 0, 'filter' => 0));
          $response = $this->wb->request_auth('contract/product', $this->session->userdata('userid'), $postdata, null, 'GET');
          $data = json_decode($response, true); 
 

@@ -210,9 +210,10 @@ $(document).ready(function (e) {
 			data: nilai,
 			contentType: "application/json",
             dataType: 'json',
-			success: function(data){
+			success: function(data, textStatus, jqXHR){
 				// console.log("device control succeeded");
 				// console.log('Ini data : ',data); 
+				// console.log(textStatus + ": " + jqXHR.status);
 				$("#tcontractqty").val(data.amount);
 				$("#toustandingqty").val(data.oustanding);
 				$("#ttransferqty").val(data.oustanding);
@@ -220,8 +221,12 @@ $(document).ready(function (e) {
 				$("#picking_name").val(data.picking_name);
 				$("#partner_name").val(data.partner_name);
 			},
-			error: function(e){
-				console.log("Error posting data");
+			error: function(e,textStatus, jqXHR){
+				// console.log("Error posting data");
+				// console.log(textStatus + ": " + jqXHR.status);
+				// console.log(e.responseJSON.error);
+				error_mess(3,e.responseJSON.error,0);
+				swal(e.responseJSON.error, "", "error");
 			}
 		});
 	});
@@ -375,7 +380,7 @@ $(document).ready(function (e) {
 		$("#chkbox").append('<input type="checkbox" name="newsletter" value="accept1" onclick="cekall('+s.length+')" id="chkselect" class="chkselect">');
 							
 		for(var i = 0; i < s.length; i++) {
-			if (s[i][6] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }
+			if (s[i][10] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }
 			oTable.fnAddData([
 '<input type="checkbox" class="cek" name="cek[]" value="'+s[i][0]+'" id="cek'+i+'" style="margin:0px"  />',
 						  i+1,
@@ -430,7 +435,7 @@ $(document).ready(function (e) {
 		$("#chkbox").append('<input type="checkbox" name="newsletter" value="accept1" onclick="cekall('+s.length+')" id="chkselect" class="chkselect">');
 							
 							for(var i = 0; i < s.length; i++) {
-						  if (s[i][6] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }
+						  if (s[i][10] == 1){ stts = 'btn btn-success'; }else { stts = 'btn btn-danger'; }
 						  oTable.fnAddData([
         '<input type="checkbox" class="cek" name="cek[]" value="'+s[i][0]+'" id="cek'+i+'" style="margin:0px"  />',
 										i+1,

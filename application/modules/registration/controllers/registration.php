@@ -23,6 +23,7 @@ class Registration extends MX_Controller
         $this->wb = new Wb_lib();
         $this->contract = new Contract_lib();
         $this->sounding = new Tank_sounding_lib();
+        $this->qc = new Qc_lib();
         
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
@@ -30,7 +31,7 @@ class Registration extends MX_Controller
     }
 
     private $properti, $modul, $title, $api;
-    private $role,$tax,$acl,$tank,$wb,$contract,$sounding;
+    private $role,$tax,$acl,$tank,$wb,$contract,$sounding,$qc;
 
     
     function index(){
@@ -41,6 +42,7 @@ class Registration extends MX_Controller
     
     function get_out_standing(){
         
+        $stts = 200;
         $datax = (array)json_decode(file_get_contents('php://input'));
         
         $nilai = array('limit' => 1, 'offset' => 0, 'filter' => $datax['origin']); 
@@ -57,17 +59,42 @@ class Registration extends MX_Controller
 //        print_r($contract1['result'][0]['picking_id']);
 //        print_r($contract1['result'][0]['picking_name']);
         
-         $response = array(
+        if ($contract1['result'][0]['no_aju'] <> null && $contract1['result'][0]['no_dokumen'] <> '-' && $contract1['result'][0]['jenis_dokumen'] <> null){
+            
+            $response = array(
                 'origin' => $datax['origin'],
                 'amount' => $contract['result'][0]['qty'],
                 'oustanding' => $contract['result'][0]['qty_out_standing'],
                 'picking_id' => $contract1['result'][0]['picking_id'],
                 'picking_name' => $contract1['result'][0]['picking_name'],
                 'partner_name' => $contract1['result'][0]['partner_name'],
+                'no_segel' => $contract1['result'][0]['no_segel_bc'],
+                'error' => null
              );
+            
+        }else{
+          
+           $error = null;
+           if ($contract1['result'][0]['no_aju'] == null){ $error = "No aju - required"; }
+           elseif ($contract1['result'][0]['no_dokumen'] == '-'){ $error = "No dokumen - required"; }
+           elseif ($contract1['result'][0]['jenis_dokumen'] == null){ $error = "Jenis dokumen - required"; }
+           
+            
+           $response = array(
+                'origin' => $datax['origin'],
+                'amount' => $contract['result'][0]['qty'],
+                'oustanding' => $contract['result'][0]['qty_out_standing'],
+                'picking_id' => $contract1['result'][0]['picking_id'],
+                'picking_name' => $contract1['result'][0]['picking_name'],
+                'partner_name' => $contract1['result'][0]['partner_name'],
+                'no_segel' => $contract1['result'][0]['no_segel_bc'],
+                'error' => $error
+             );
+           $stts = 400;
+        }
         
          $this->output
-        ->set_status_header(200)
+        ->set_status_header($stts)
         ->set_content_type('application/json', 'utf-8')
         ->set_output(json_encode($response,JSON_UNESCAPED_SLASHES,true))
         ->_display();
@@ -101,7 +128,7 @@ class Registration extends MX_Controller
 
     function get_last()
     {
-//        $this->acl->otentikasi1($this->title);
+        $this->acl->otentikasi();
 
         $data['title'] = $this->properti['name'].' | Administrator  '.ucwords('Tank Manager');
         $data['h2title'] = $this->components->get_title($this->title);
@@ -232,37 +259,124 @@ class Registration extends MX_Controller
        $data['manager'] = $this->properti['manager'];
        $this->load->view('contract_invoice', $data);
    }
-    
+   
 
     function confirmation($pid)
     {
-        if ($this->acl->otentikasi3($this->title,'ajax') == TRUE){
+        if ($this->acl->otentikasi1($this->title) == TRUE){
         $journal = $this->model->get_by_id($pid)->row();
         
-        if ($journal->approved == 1) { echo "warning|$this->title already approved..!"; }
-        elseif ($this->valid_period($journal->dates) == FALSE ){ echo "error|Invalid period..!"; }
-        elseif ($journal->amount <= 0 ){ echo "error|Invalid Amount..!"; }
+        if ($journal->approved == 1) { echo "warning|$this->title [$journal->code] already approved..!"; }
+        elseif ($journal->validation == 0 ){ echo "error|$this->title [$journal->code] must be validate..!"; }
         else
         {
-           $ar = $journal->ar_account; // piutang dagang
-           $tax = $journal->tax_account; // tax keluaran
-           $sales = $journal->sales_account; // sales
-
-           // create journal- GL
-           $this->journalgl->new_journal('0'.$pid,$journal->dates,'CO','IDR',$journal->notes,$journal->amount, $this->session->userdata('log'));
-           $dpid = $this->journalgl->get_journal_id('CO','0'.$pid);
-
-           $this->journalgl->add_trans($dpid,$sales,0, intval($journal->amount-$journal->tax_val)); // penjualan
-           $this->journalgl->add_trans($dpid,$ar,$journal->amount,0); // piutang dagang
-           if ($journal->tax_val > 0){  
-               $this->journalgl->add_trans($dpid,$tax,0,$journal->tax_val); // piutang tax
-           }
-                  
-           $data = array('approved' => 1, 'balance' => $journal->amount);
-           $this->model->update($pid, $data);
-           echo "true| $journal->docno confirmed..!";
+          if ($journal->type == "PIPELINE"){ $this->post_pipeline($pid); }
+          elseif ($journal->type == "CARRIAGE"){ $this->post_gk($pid); } 
         }
         }else { echo "error|Sorry, you do not have the right to edit $this->title component..!"; }
+    }
+    
+    private function post_pipeline($pid){
+        $stts = true;
+        $register = $this->model->get_by_id($pid)->row();
+        $result = $this->contract->get_last($pid);
+        
+        foreach ($result as $res) {
+             $netto_diff = $res->netto_from-$res->transfer_amount;           
+
+             $postData = array(
+              'pickingid' => $res->picking_id, 'pickingname' => $res->picking_name,
+              'sequence' => 10, 'product_id' => 1, 'product_uom_id' => 3, 'location_id' => 4,  'location_dest_id' => $register->to_tank_id,
+              'do' => $register->docno, 'nama_kendaraan' => "", 'no_container' => "", 'no_polisi' => "",
+              'transporter' => "PIPANISASI", 'driver_name' => "", 'destination' => "PT INL", 'no_karcis_timbangan' => "",
+              'no_surat_jalan' => "", 'tgl_keluar_from' => $register->dates, 'tgl_masuk_truk' => $register->start_transfer, 'tgl_keluar_truk' => $register->end_transfer,
+              'bruto_from' => 0, 'tarra_from' => 0, 'netto_from' => $res->netto_from, 'bruto' => 0,
+              'tarra' => 0, 'qty_done' => $res->transfer_amount, 'netto_diff' => $res->netto_from-$res->transfer_amount, 'netto_diff_persen' => intval($netto_diff/$res->transfer_amount*100),
+              'ffa_from' => $register->ffa_from, 'mni_from' => 0, 'imp_from' => $register->i_from, 'iv_from' => $register->iv_from,
+              'mpt_degrees_from' => $register->mpt_from, 'color_from' => $register->color_from, 'ffa' => $register->ffa, 'mni' => 0,
+              'imp' => $register->i, 'iv' => $register->iv, 'mpt_degrees' => $register->mpt, 'color' => $register->color,
+              'no_segel1' => "", 'no_segel2' => "", 'no_segel3' => "", 'partner_name' => $res->partner_name,
+              'no_do' => "-", 'origin' => $res->origin_no, 'qty_box' => 0, 'asal_pks' => 'SEI MANGKEI',
+              'state' => NULL, 'create_uid' => 1, 'create_date' => date('Y-m-d H:i:s'), 'write_uid' => 1, 'write_date' => date('Y-m-d H:i:s'),     
+              'date' => $register->dates, 'cloud_point' => 0, 'saponifiable_matter' => 0, 'peroxide_value' => 0, 
+              'no_segel4' => NULL, 'moist_from' => $register->m_from, 'moist' => $register->m      
+            );
+//            print_r($postData);
+            $postString = http_build_query($postData, '', '&');
+            $req = $this->wb->request_auth('contract/post', $this->session->userdata('userid'), $postString, 1, 'POST');      
+//            echo $req[1];
+            if ($req[1] == 200){
+                $response = json_decode($req[0]);
+                // edit stockpicking truck id
+                if ($this->contract->set_picking_truck($res->id, $response->result->id) == true){
+                    echo 'true|truck picking id ['.$response->result->id.'] successful saved';
+                }else{ echo 'error|Failed to update truck picking id..!'; $stts = false; }
+            
+            }else{ 
+                echo 'error|['.$req[1].'] - Failed to post..!';
+                $stts = false;
+                break;
+            } 
+        }
+        if ($stts == true){
+          $data = array('approved' => 1);
+          $this->model->update($pid, $data);
+        }
+    }
+    
+    private function post_gk($pid){
+        
+        $stts = true;
+        $register = $this->model->get_by_id($pid)->row();
+        $result = $this->qc->get_last($pid)->result();
+        foreach ($result as $res) {
+            $contract = $this->contract->get_by_id($res->contract_id)->row();
+//            print_r($data);
+            
+              $netto_diff = $res->netto_from-$res->netto;
+              $postData = array(
+              'pickingid' => $contract->picking_id, 'pickingname' => $contract->picking_name,
+              'sequence' => 10, 'product_id' => 1, 'product_uom_id' => 3, 'location_id' => 4,  'location_dest_id' => 8,
+              'do' => $register->docno, 'nama_kendaraan' => "", 'no_container' => $res->gk_no, 'no_polisi' => $res->gk_no,
+              'transporter' => "KERETA API", 'driver_name' => $res->driver, 'destination' => "PT INL", 'no_karcis_timbangan' => $res->ticket_no,
+              'no_surat_jalan' => "", 'tgl_keluar_from' => $res->vendor_out, 'tgl_masuk_truk' => $res->dryport_incoming, 'tgl_keluar_truk' => $res->dryport_outgoing,
+              'bruto_from' => $res->bruto_from, 'tarra_from' => $res->tara_from, 'netto_from' => $res->netto_from, 'bruto' => $res->bruto,
+              'tarra' => $res->tara, 'qty_done' => $res->netto, 'netto_diff' => $res->netto_from-$res->netto, 'netto_diff_persen' => intval($netto_diff/$res->netto*100),
+              'ffa_from' => $res->ffa_from, 'mni_from' => 0, 'imp_from' => $res->imp_from, 'iv_from' => $res->iv_from,
+              'mpt_degrees_from' => $res->mpt_from, 'color_from' => $res->color_from, 'ffa' => $res->ffa, 'mni' => 0,
+              'imp' => $res->imp, 'iv' => $res->iv, 'mpt_degrees' => $res->mpt, 'color' => $res->color,
+              'no_segel1' => "", 'no_segel2' => "", 'no_segel3' => "", 'partner_name' => $contract->partner_name,
+              'no_do' => "-", 'origin' => $contract->origin_no, 'qty_box' => 0, 'asal_pks' => $res->supplier,
+              'state' => NULL, 'create_uid' => 1, 'create_date' => date('Y-m-d H:i:s'), 'write_uid' => 1, 'write_date' => date('Y-m-d H:i:s'),     
+              'date' => $register->dates, 'cloud_point' => 0, 'saponifiable_matter' => 0, 'peroxide_value' => 0, 
+              'no_segel4' => NULL, 'moist_from' => $res->moist_from, 'moist' => $res->moist      
+            );
+                    
+//             print_r($postData);
+                    
+            $postString = http_build_query($postData, '', '&');
+            $req = $this->wb->request_auth('contract/post', $this->session->userdata('userid'), $postString, 1, 'POST');      
+//            echo $req[1];
+            if ($req[1] == 200){
+                $response = json_decode($req[0]);
+                // edit stockpicking truck id
+                if ($this->qc->set_picking_truck($res->id, $response->result->id) == true){
+//                    $label = ;
+                    echo 'true|truck picking id ['.$response->result->id.'] successful saved';
+                }else{ echo 'error|Failed to update truck picking id..!'; $stts = false; }
+            
+            }else{ 
+                echo 'error|['.$req[1].'] - Failed to post..!';
+                $stts = false;
+                break;
+            }
+        }
+        // end loop
+        
+        if ($stts == true){
+          $data = array('approved' => 1);
+          $this->model->update($pid, $data);
+        }
     }
     
     function delete_all($type='soft')
@@ -320,16 +434,69 @@ class Registration extends MX_Controller
         }else { echo "error|Sorry, you do not have the right to edit $this->title component..!"; }
     }
     
-    private function rollback($uid)
+    function rollback($uid)
     {
-       $journal = $this->model->get_by_id($uid)->row(); 
-//       if($journal->amount != $journal->balance){ echo "error|amount and balance not equal!"; }
-//       else{
-        $this->journalgl->remove_journal('CO', '0'.$uid);
-        $data = array('approved' => 0);
-        $this->model->update($uid, $data);   
-//       }
+       
+       $journal = $this->model->get_by_id($uid)->row();
+       
+       if ($journal->type == "CARRIAGE"){
+           $this->rollback_gk($uid);
+       }
+       elseif ($journal->type == "PIPELINE"){
+           $this->rollback_pipeline($uid);
+       }
     }
+    
+    function rollback_pipeline($regid){
+        
+       $stts = true; 
+       $journal = $this->model->get_by_id($regid)->row();
+       $result = $this->contract->get_last($regid);
+       foreach ($result as $res) {
+           $req = $this->wb->request_auth("contract/remove/".$res->picking_truck_id, $this->session->userdata('userid'), null, 1, 'GET');
+//           echo $res->id.'<br/>';
+//           print_r($req[1]);
+//           print_r($req[0]);
+           if ($req[1] == 200){
+               $this->contract->set_picking_truck($res->id, NULL);
+               echo "true|successfull rollback [ $res->picking_truck_id ]";
+           }else{ break; $stts = false; echo "error|Failed to rollback [ $res->picking_truck_id ]"; }
+       }
+       
+       if ($stts == true){ 
+          $data = array('approved' => 0, 'validation' => 0);
+          if ($this->model->update($regid, $data) == true){ 
+              echo "true|$this->title [ $journal->code ] has been updated"; 
+          }
+          else{ echo "error|$this->title [ $journal->code ] failed been updated "; }
+       }else{ echo "error|Failed to rollback [ $journal->code ]"; }
+    }
+    
+    function rollback_gk($regid){
+        
+       $stts = true; 
+       $journal = $this->model->get_by_id($regid)->row();
+       $result = $this->qc->get_last($regid)->result();
+       foreach ($result as $res) {
+           $req = $this->wb->request_auth("contract/remove/".$res->picking_truck_id, $this->session->userdata('userid'), null, 1, 'GET');
+//           echo $res->id.'<br/>';
+//           print_r($req[1]);
+//           print_r($req[0]);
+           if ($req[1] == 200){
+               $this->qc->set_picking_truck($res->id, NULL);
+               echo "true|successfull rollback [ $res->picking_truck_id ]";
+           }else{ break; $stts = false; echo "error|Failed to rollback [ $res->picking_truck_id ]"; }
+       }
+       
+       if ($stts == true){ 
+          $data = array('approved' => 0, 'validation' => 0);
+          if ($this->model->update($regid, $data) == true){ 
+              echo "true|$this->title [ $journal->code ] has been updated"; 
+          }
+          else{ echo "error|$this->title [ $journal->code ] failed been updated "; }
+       }else{ echo "error|Failed to rollback [ $journal->code ]"; }
+    }
+    
     
     private function remove($uid){ $this->model->force_delete($uid); }
     
@@ -350,12 +517,13 @@ class Registration extends MX_Controller
         {
             if ($this->input->post('tsrctank') != ""){ $srctank = $this->input->post('tsrctank');}
             else{ $srctank = $this->input->post('csrctank'); }
+            $totank = explode('|', $this->input->post('cttotank'));
             
             $product = array('docno' => strtoupper($this->input->post('tdocno')),
                              'type' => strtoupper($this->input->post('ctype')),
                              'dates' => $this->input->post('tdate'), 'description' => $this->input->post('tnote'), 
                              'code' => $this->input->post('tcode'),
-                             'source_tank' => $srctank, 'to_tank' => $this->input->post('cttotank'),
+                             'source_tank' => $srctank, 'to_tank' => $totank[1], 'to_tank_id' => $totank[0],
                              'created' => date('Y-m-d H:i:s'));
             
             if ($this->model->add($product) == TRUE){echo 'true|'.$this->title.' successfully saved..!';}
@@ -367,12 +535,16 @@ class Registration extends MX_Controller
     // Fungsi update untuk menset texfield dengan nilai dari database
     function update($uid=null)
     {      
-//        $this->acl->otentikasi();
+        $this->acl->otentikasi();
         $this->model->valid_add_trans($uid, $this->title);
+        $register = $this->model->get_by_id($uid)->row();
+        if ($register->type == "PIPELINE"){
+            $data['main_view'] = 'registration_update_pipeline';
+        }else{ $data['main_view'] = 'registration_update_carriage'; }
         
         $data['title'] = $this->properti['name'].' | Administrator  '.ucwords($this->modul['title']);
         $data['h2title'] = 'Edit '.$this->modul['title'];
-        $data['main_view'] = 'registration_update';
+        
 	$data['form_action'] = site_url($this->title.'/update_process/'.$uid);
         $data['form_action_item'] = site_url($this->title.'/add_item/'.$uid);
         $data['form_action_sounding'] = site_url($this->title.'/add_sounding_item/'.$uid);
@@ -386,7 +558,7 @@ class Registration extends MX_Controller
         $data['pic_kinra'] = $this->model->get_pic('pic_3');
         $data['pic_qc'] = $this->model->get_pic('pic_qc');
         
-        $register = $this->model->get_by_id($uid)->row();
+        
         if ($register->validation == 0){
           $databtn = array('name'=>'','id'=>'validatebtn','class'=>'btn btn-primary','value'=> $uid,'type'=>'button','content'=>'Validate');
           $data['button_validate'] = form_button($databtn);
@@ -407,14 +579,35 @@ class Registration extends MX_Controller
         $data['default']['pic_obl']   = $register->pic_2;
         $data['default']['pic_kinra'] = $register->pic_3;
         $data['default']['pic_qc']    = $register->pic_qc;
+        $data['default']['netto_from'] = $register->netto_from;
         
-        $data['default']['ffa'] = $register->qc_ffa;
-        $data['default']['m']  = $register->qc_m;
-        $data['default']['i']  = $register->qc_i;
+        $data['default']['ffa_from'] = $register->ffa_from;
+        $data['default']['m_from']  = $register->m_from;
+        $data['default']['imp_from']  = $register->i_from;
+        $data['default']['iv_from']  = $register->iv_from;
+        $data['default']['mpt_from']  = $register->mpt_from;
+        $data['default']['color_from']  = $register->color_from;
+        
+        $data['default']['ffa'] = $register->ffa;
+        $data['default']['m']  = $register->m;
+        $data['default']['i']  = $register->i;
+        $data['default']['iv']  = $register->iv;
+        $data['default']['mpt']  = $register->mpt;
+        $data['default']['color']  = $register->color;
+        
+        
         $data['default']['qcstatus'] = $register->qc_status;
         $data['default']['desc'] = $register->description;
         
         $data['items'] = $this->contract->get_last($uid); // item contract
+        
+        // summary contract
+        $con_summary = $this->contract->summary($uid);
+        $data['contract_sum'] = $con_summary['contract_amount'];
+        $data['outstanding_sum'] = $con_summary['outstanding_amount'];
+        $data['transfer_sum'] = $con_summary['transfer_amount'];
+        $data['netto_sum'] = $con_summary['netto_from'];
+        
         $data['items_sounding'] = $this->sounding->get_last($uid)->result();
         $data['default']['amt_qty'] = number_format($this->contract->cek_contract_amount($uid));
 //        echo $this->contract->cek_contract_amount($uid);
@@ -543,6 +736,8 @@ class Registration extends MX_Controller
     function update_process($uid=0)
     {
         if ($this->acl->otentikasi2($this->title) == TRUE){
+            
+        $register = $this->model->get_by_id($uid)->row();
 
         $data['title'] = $this->properti['name'].' | Productistrator  '.ucwords($this->modul['title']);
         $data['h2title'] = $this->modul['title'];
@@ -552,15 +747,35 @@ class Registration extends MX_Controller
 
 	// Form validation
         $this->form_validation->set_rules('tdate', 'Transation Date', 'required');
-        $this->form_validation->set_rules('tstart', 'Transfer Start', 'required|callback_valid_start');
-        $this->form_validation->set_rules('tend', 'Transfer End', 'required|callback_valid_end');
+       
         $this->form_validation->set_rules('cpicibl', 'PIC-IBL', 'callback_valid_ibl');
         $this->form_validation->set_rules('cpicobl', 'PIC-OBL', 'callback_valid_obl');
         $this->form_validation->set_rules('cpickinra', 'PIC-KINRA', 'callback_valid_kinra');
         $this->form_validation->set_rules('cpicqc', 'PIC-QC', 'callback_valid_qc');
-        $this->form_validation->set_rules('tqcffa', 'FFA', 'required|numeric');
-        $this->form_validation->set_rules('tqcm', 'M', 'required|numeric');
-        $this->form_validation->set_rules('tqci', 'I', 'required|numeric');
+        
+        if ($register->type == "PIPELINE"){
+            
+            $this->form_validation->set_rules('tstart', 'Transfer Start', 'required|callback_valid_start');
+            $this->form_validation->set_rules('tend', 'Transfer End', 'required|callback_valid_end');
+            
+            $this->form_validation->set_rules('tffa', 'FFA', 'required|numeric');
+            $this->form_validation->set_rules('tmoist', 'Moisture', 'required|numeric');
+            $this->form_validation->set_rules('timp', 'Impurities', 'required|numeric');
+            $this->form_validation->set_rules('tiv', 'IV', 'required|numeric');
+            $this->form_validation->set_rules('tmpt', 'Mpt', 'required|numeric');
+            $this->form_validation->set_rules('tcolor', 'Color', 'required|numeric');
+
+            $this->form_validation->set_rules('tnetto_from', 'Netto From', 'required|numeric');
+
+            $this->form_validation->set_rules('tffa_from', 'FFA From', 'required|numeric');
+            $this->form_validation->set_rules('tmoist_from', 'Moist From', 'required|numeric');
+            $this->form_validation->set_rules('timp_from', 'Imp From', 'required|numeric');
+            $this->form_validation->set_rules('tiv_from', 'IV From', 'required|numeric');
+            $this->form_validation->set_rules('tmpt_from', 'Mpt From', 'required|numeric');
+            $this->form_validation->set_rules('tcolor_from', 'Color From', 'required|numeric');
+        }
+        
+
         $this->form_validation->set_rules('cqcstatus', 'QC-Status', 'required|numeric');
         $this->form_validation->set_rules('csegelstatus', 'Segel-Status', 'required|numeric');
         $this->form_validation->set_rules('tdesc', 'Description', '');
@@ -573,13 +788,30 @@ class Registration extends MX_Controller
             if ($this->input->post('tpickinra') != ""){ $pickinra = $this->input->post('tpickinra');}else{ $pickinra = $this->input->post('cpickinra'); }
             if ($this->input->post('tpicqc') != ""){ $picqc = $this->input->post('tpicqc');}else{ $picqc = $this->input->post('cpicqc'); }
             
-            $product = array('dates' =>$this->input->post('tdate'),
+            if ($register->type == "PIPELINE"){
+                $product = array('dates' =>$this->input->post('tdate'),
                              'start_transfer' => $this->input->post('tstart'), 'end_transfer' => $this->input->post('tend'),
                              'pic_1' => $picibl, 'pic_2' => $picobl, 'pic_3' => $pickinra, 'pic_qc' => $picqc,
-                             'qc_ffa' => $this->input->post('tqcffa'), 'qc_m' => $this->input->post('tqcm'), 'qc_i' => $this->input->post('tqci'),
+                             'ffa' => $this->input->post('tffa'), 'm' => $this->input->post('tmoist'), 
+                             'i' => $this->input->post('timp'), 'iv' => $this->input->post('tiv'), 
+                             'mpt' => $this->input->post('tmpt'), 'color' => $this->input->post('tcolor'),
+                             
+                             'netto_from' => $this->input->post('tnetto_from'),
+                             'ffa_from' => $this->input->post('tffa_from'), 'm_from' => $this->input->post('tmoist_from'), 
+                             'i_from' => $this->input->post('timp_from'), 'iv_from' => $this->input->post('tiv_from'), 
+                             'mpt_from' => $this->input->post('tmpt_from'), 'color_from' => $this->input->post('tcolor_from'),
+                
                              'qc_status' => $this->input->post('cqcstatus'),'description' => $this->input->post('tdesc'),
                              'segel_status' => $this->input->post('csegelstatus')
                             );
+                
+            }elseif ($register->type == "CARRIAGE"){
+                $product = array('dates' =>$this->input->post('tdate'),
+                             'pic_1' => $picibl, 'pic_2' => $picobl, 'pic_3' => $pickinra, 'pic_qc' => $picqc,
+                             'qc_status' => $this->input->post('cqcstatus'),'description' => $this->input->post('tdesc'),
+                             'segel_status' => $this->input->post('csegelstatus')
+                            );
+            }
 //            
             $this->model->update($uid, $product);
             echo 'true|'."One $this->title has successfully updated!";
@@ -592,13 +824,19 @@ class Registration extends MX_Controller
     
     function add_item($uid=0)
     {
-        $this->form_validation->set_rules('titem', 'Item Name', 'required');
+        $register = $this->model->get_by_id($uid)->row();
+        
+        $this->form_validation->set_rules('titem', 'Item Name', 'required|callback_valid_origin['.$uid.']');
         $this->form_validation->set_rules('tcontractqty', 'Contract Qty', 'required|numeric|is_natural_no_zero');
         $this->form_validation->set_rules('toustandingqty', 'Outstanding Qty', 'required|numeric|is_natural_no_zero|callback_valid_transfer_qty');
-        $this->form_validation->set_rules('ttransferqty', 'Transfer Qty', 'required|numeric|is_natural_no_zero');
+        $this->form_validation->set_rules('ttransferqty', 'Received Qty', 'required|numeric|is_natural_no_zero');
         $this->form_validation->set_rules('picking_id', 'Picking-ID', 'required');
         $this->form_validation->set_rules('picking_name', 'Picking-Name', 'required');
         $this->form_validation->set_rules('partner_name', 'Partner-Name', 'required');
+        
+        if ($register->type == 'PIPELINE'){
+          $this->form_validation->set_rules('tfromqty', 'Sent Qty', 'required|numeric|is_natural_no_zero');
+        }
 
         if ($this->form_validation->run($this) == TRUE && $this->valid_confirmation($uid) == TRUE)
         {
@@ -606,6 +844,7 @@ class Registration extends MX_Controller
                            'origin_no' => $this->input->post('titem'),
                            'contract_amount' => $this->input->post('tcontractqty'),
                            'outstanding_amount' => $this->input->post('toustandingqty'),
+                           'netto_from' => $this->input->post('tfromqty'),
                            'transfer_amount' => $this->input->post('ttransferqty'),
                            'picking_id' => $this->input->post('picking_id'),
                            'picking_name' => $this->input->post('picking_name'),
@@ -618,6 +857,13 @@ class Registration extends MX_Controller
         }
         elseif ( $this->valid_confirmation($uid) != TRUE ){ echo "error|Can't change value - Journal validated..!"; }
         else{ echo 'error|'.validation_errors(); } 
+    }
+    
+    function valid_origin($origin,$regid){
+       if ($this->contract->valid_based_reg($origin, $regid) === FALSE){
+          $this->form_validation->set_message('valid_origin','Origin Already Registered..!');
+          return FALSE;
+       }else{ return TRUE; }
     }
     
     function valid_transfer_qty($outstanding){
@@ -656,23 +902,46 @@ class Registration extends MX_Controller
     
     function validation($regid){
         $register = $this->model->get_by_id($regid)->row();
-        $error = null; $status = TRUE;
+        $error = null; $status = TRUE; 
         
-        $qtyreceived = $this->sounding->get_qty_receive($regid);
         $contractamt = $this->contract->cek_contract_amount($regid);
         
         if ($register->validation == 1){ $error = 'Transaction has been validated, Rollback first..!'; $status = FALSE; }
         else if ($register->approved == 1){ $error = 'Transaction has been posted, Cant edited..!'; $status = FALSE; }
         else if ($this->contract->cek_trans('registration_id',$regid) == FALSE){ $error = 'Origin / Contract List Not Found..!'; $status = FALSE; }
-        else if ($this->sounding->count_row_based_registration($regid) == FALSE){ $error = 'Sounding List Not Complete..!'; $status = FALSE; }
-        else if ($qtyreceived <> $contractamt){ $error = 'Invalid Contract & Received Amount'; $status = FALSE; }
-        else if ($register->qc_status != 0){ $error = 'Invalid QC Status'; $status = FALSE; }
+        else if ($this->qc->valid_based_type($regid, $register->type) == FALSE){ $error = "Qc data not found..!"; $status = FALSE; }
+        
+        $summ = $this->contract->summary($regid);
+        if ($register->type == "PIPELINE"){
+            
+             $qtyreceived = $this->sounding->get_qty_receive($regid);
+             $before = $this->sounding->get_by_period($regid,0);
+             $after = $this->sounding->get_by_period($regid,1);
+             $qty_source_before = $before->source_tonase;
+             $qty_source_after = $after->source_tonase;
+             
+             $qtykirim = abs($qty_source_after-$qty_source_before);
+             if ($summ['netto_from'] <> $qtykirim){  $error = "Invalid Contract Sent Amount..!"; $status = FALSE; }
+             
+             if ($this->sounding->count_row_based_registration($regid) == FALSE){ $error = 'Sounding List Not Complete..!'; $status = FALSE; }
+             if ($qtyreceived <> $contractamt){ $error = 'Invalid Contract & Received Amount'; $status = FALSE; }
+             if ($register->qc_status != 0){ $error = 'Invalid QC Status'; $status = FALSE; }
+        }
+        elseif ($register->type == "CARRIAGE"){
+            
+           $qcsum = $this->qc->summary($regid);
+//           if ($summ['netto_from'] <> $qcsum['netto_from']){ $error = 'GK - Invalid Contract Sent Amount'; $status = FALSE; }
+           if ($summ['transfer_amount'] <> $qcsum['netto']){ $error = 'GK - Invalid Contract Received Amount'; $status = FALSE; }
+           
+//           echo 'Netto Contract : '.$summ['transfer_amount'].'<br/>';
+//           echo 'GK Netto : '.$qcsum['netto'].'<br/>';
+//           echo 'Netto From Contract : '.$summ['netto_from'].'<br/>';
+//           echo 'GK Netto From : '.$qcsum['netto_from'].'<br/>';
+        }
         
 //        echo 'Qty Received : '.$qtyreceived.'<br>';
 //        echo 'Contract Amount : '.$contractamt.'<br>';
         
-//        print_r($error.'<br>');
-//        var_dump($status);
         if ($status == TRUE){ 
           $data = array('validation' => 1);
           if ($this->model->update($regid, $data) == TRUE){ echo 'true|Validation Success'; }else{ echo 'error|Failed to edit validation'; }
@@ -701,12 +970,16 @@ class Registration extends MX_Controller
         if ($this->acl->otentikasi_admin($this->title,'ajax') == TRUE){
             
             $jid = $this->contract->get_by_id($id)->row();
-            if ( $this->valid_confirmation($jid->registration_id) == TRUE )
+            $qcvalid = $this->qc->valid_based_contract($jid->registration_id, $id);
+            
+            if ( $this->valid_confirmation($jid->registration_id) == TRUE && $qcvalid == TRUE )
             {
                 $this->contract->force_delete($id);
                 echo 'true|Transaction removed..!';
             }
-            else{ echo "warning|Journal approved, can't deleted..!"; }
+            elseif ($qcvalid != TRUE){ echo 'error|Contract related to another transaction..!'; }
+            elseif ($this->valid_confirmation($jid->registration_id) != TRUE){ echo "error|Journal approved, can't deleted..!"; }
+            
         }else { echo "error|Sorry, you do not have the right to edit $this->title component..!"; }
     }
     

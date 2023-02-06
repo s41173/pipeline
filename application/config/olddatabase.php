@@ -55,7 +55,7 @@ $db['default']['database'] = 'pipelinedb';
 //$db['default']['database'] = 'deli1082_sysdb';
 $db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
-$db['default']['pconnect'] = FALSE;
+$db['default']['pconnect'] = TRUE;
 $db['default']['db_debug'] = TRUE;
 $db['default']['cache_on'] = FALSE;
 $db['default']['cachedir'] = '';
@@ -64,22 +64,6 @@ $db['default']['dbcollat'] = 'utf8_general_ci';
 $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
-
-//echo '<pre>'; 
-//  print_r($db['default']); 
-//    echo '</pre>'; 
-//
-//  echo 'Connecting to database: '.$db['default']['database']; 
-//  $dbh=mysqli_connect ( 
-//
-//  $db['default']['hostname'], 
-//    $db['default']['username'], 
-//    $db['default']['password']) 
-//    or die('Cannot connect to the database because: ' . 
-//    mysql_error()); mysqli_select_db($dbh,$db['default']['database']); 
-//
-//    echo '<br /> Connected OK:' ; 
-//    die( 'file: ' .__FILE__ . ' Line: ' .__LINE__);
 
 
 /* End of file database.php */

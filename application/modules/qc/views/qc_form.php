@@ -162,9 +162,17 @@ echo form_dropdown('csupplier', $supplier, isset($default['supplier']) ? $defaul
         <label class="control-label labelx"> NO-GK </label> <br>
         <input type="text" name="tnogk" id="tnogk" class="form-control" style="width:150px;" required> &nbsp;
       </div>   
-       
-    
          
+      <div class="form-group">
+        <label class="control-label labelx"> Driver </label> <br>
+        <input type="text" name="tdriver" id="tdriver" class="form-control" style="width:150px;" required> &nbsp;
+      </div>   
+         
+      <div class="form-group">
+        <label class="control-label labelx"> Ticket-No </label> <br>
+        <input type="text" name="tticket" id="tticket" class="form-control" style="width:150px;" required> &nbsp;
+      </div>   
+       
     </div>  <br/>
 <!--  batas inline 1  -->
        
@@ -326,9 +334,15 @@ echo form_dropdown('csupplier', $supplier, isset($default['supplier']) ? $defaul
             <th class="column-title"> Origin </th>
             <th class="column-title"> Supplier </th>
             <th class="column-title"> GK-No </th>
-            <th class="column-title"> FFA </th>
-            <th class="column-title"> MOIST </th>
-            <th class="column-title"> IMP </th>
+            <th class="column-title"> Bruto </th>
+            <th class="column-title"> Tara </th>
+            <th class="column-title"> Netto </th>
+            <th class="column-title"> Ffa </th>
+            <th class="column-title"> Moist </th>
+            <th class="column-title"> Imp </th>
+            <th class="column-title"> Iv </th>
+            <th class="column-title"> Mpt </th>
+            <th class="column-title"> Color </th>
             <th class="column-title no-link last"><span class="nobr">Action</span>
             </th>
             <th class="bulk-actions" colspan="7">
@@ -357,10 +371,16 @@ echo form_dropdown('csupplier', $supplier, isset($default['supplier']) ? $defaul
                         <td> ".$i." </td>
                         <td>".get_origin($res->contract_id)."</td>
                         <td>".strtoupper($res->supplier).'<br/>'.ucfirst($res->description)."</td>
-                        <td>".strtoupper($res->gk_no)."</td>
-                        <td>".$res->ffa."</td>
-                        <td>".$res->moist."</td>
-                        <td>".$res->imp."</td>
+                    <td>".strtoupper($res->gk_no).'<br/>'.strtoupper($res->driver)."<br/>".$res->ticket_no."</td>
+                        <td>".number_format($res->bruto_from).'<br/>'.number_format($res->bruto)."</td>
+                        <td>".number_format($res->tara_from).'<br/>'.number_format($res->tara)."</td>
+                        <td>".number_format($res->netto_from).'<br/>'.number_format($res->netto)."</td>
+                        <td>".$res->ffa_from.'<br/>'.$res->ffa."</td>
+                        <td>".$res->moist_from.'<br/>'.$res->moist."</td>
+                        <td>".$res->imp_from.'<br/>'.$res->imp."</td>
+                        <td>".$res->iv_from.'<br/>'.$res->iv."</td>
+                        <td>".$res->mpt_from.'<br/>'.$res->mpt."</td>
+                        <td>".$res->color_from.'<br/>'.$res->color."</td>
 <td class=\" last\"> 
 <a class=\"btn btn-danger btn-xs text-remove\" id=\"".$res->id."\"> <i class=\"fa fas-2x fa-trash\"> </i> </a> 
 </td>

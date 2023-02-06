@@ -29,7 +29,7 @@ class Tank_lib extends Custom_Model {
         foreach ($result['result'] as $res) {
             echo $res['id'].'<br>';
 //            $i++;
-//            echo $res['stock_location_name'].'<br/>';
+//            echo $res['stock_location_name'].'<br/>
         }
 //        print_r($result);
     }
@@ -37,10 +37,10 @@ class Tank_lib extends Custom_Model {
     function combo_api($type=null)
     {
         if ($type){ $data['options'][''] = '--Select--'; }
-        $postdata = json_encode(array('limit' => 50, 'offset' => 0));
-        $result = $this->wb->request_auth('contract/product', $this->session->userdata('userid'), $postdata, null, 'GET');
+        $postdata = json_encode(array('limit' => 50, 'offset' => 0, 'filter' => 0));
+        $result = $this->wb->request_auth('contract/product', $this->session->userdata('userid'), $postdata, null, 'POST');
         $result = json_decode($result, true); 
-        if ($result){ foreach($result['result'] as $row){$data['options'][$row['stock_location_name']] = strtoupper($row['stock_location_name']);} }
+        if ($result){ foreach($result['result'] as $row){$data['options'][$row['location_id'].'|'.$row['stock_location_name']] = strtoupper($row['stock_location_name']);} }
         else { $data['options'][''] = '--'; }        
         return $data;
     }

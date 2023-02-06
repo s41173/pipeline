@@ -154,6 +154,8 @@ class Qc extends MX_Controller
         $this->form_validation->set_rules('ccontract', 'Origin No', 'required');
         $this->form_validation->set_rules('csupplier', 'Supplier', '');
         $this->form_validation->set_rules('tnogk', 'NO GK', 'required');
+        $this->form_validation->set_rules('tdriver', 'Driver', 'required');
+        $this->form_validation->set_rules('tticket', 'Ticket-No', '');
         
         $this->form_validation->set_rules('tffa', 'FFA', 'required');
         $this->form_validation->set_rules('tmoist', 'MOIST', 'required');
@@ -192,6 +194,8 @@ class Qc extends MX_Controller
                            'contract_id' => $this->input->post('ccontract'),
                            'supplier' => $supplier,
                            'gk_no' => strtoupper($this->input->post('tnogk')),
+                           'driver' => strtoupper($this->input->post('tdriver')),
+                           'ticket_no' => strtoupper($this->input->post('tticket')),
                            'ffa' => $this->input->post('tffa'),
                            'moist' => $this->input->post('tmoist'),
                            'imp' => $this->input->post('timp'),

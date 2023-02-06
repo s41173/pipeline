@@ -201,14 +201,6 @@ echo form_dropdown('cpickinra', $pic_kinra, isset($default['pic_kinra']) ? $defa
         
 <!-- payment method2 -->
     <div class="col-md-2 col-sm-12 col-xs-12">
-          <label class="control-label labelx"> QC-FFA </label>
-          <input type="text" class="form-control" id="" name="tqcffa" title="" value="<?php echo isset($default['ffa']) ? $default['ffa'] : '' ?>">
-          
-          <label class="control-label labelx"> QC-M </label>        
-<input type="text" class="form-control" id="" name="tqcm" title="" value="<?php echo isset($default['m']) ? $default['m'] : '' ?>">
-        
-         <label class="control-label labelx"> QC-I </label>        
-<input type="text" class="form-control" id="" name="tqci" title="" value="<?php echo isset($default['i']) ? $default['i'] : '' ?>">
         
  <label class="control-label labelx"> QC-Status </label>
   <select class="form-control" name="cqcstatus">
@@ -284,6 +276,9 @@ echo form_dropdown('cpicqc', $pic_qc, isset($default['pic_qc']) ? $default['pic_
            <?php echo anchor_popup(site_url("registration/get_list/titem/"), '[ ... ]', $atts1); ?>
           <button type="button" id="bgetqty" class="btn btn-success button_inline"> GET </button> &nbsp;
           <input type="hidden" name="hid" value="<?php echo $uid; ?>">
+          <input type="hidden" name="picking_id" id="picking_id">
+          <input type="hidden" name="picking_name" id="picking_name">
+          <input type="hidden" name="partner_name" id="partner_name">
       </div>
       
       <div class="form-group">

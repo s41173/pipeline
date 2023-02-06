@@ -97,13 +97,17 @@ class Login extends MX_Controller {
     function process_logout()
     {
 //        $userid = $this->Login_model->get_userid($this->session->userdata('username'));
-        $userid = $this->session->userdata('userid');
-        $this->date  = date('Y-m-d');
-        $this->time  = waktuindo();
-        
-        $this->log->insert($userid, $this->date, $this->time, 'logout');
-        $this->session->sess_destroy();
-        redirect('login');
+        $result = $this->wb->request_auth('authentication/logout', $this->session->userdata('userid'), null, 1, 'GET');
+//        print_r($result[1]);
+        if($result[1] == 200){
+          $userid = $this->session->userdata('userid');
+          $this->date  = date('Y-m-d');
+          $this->time  = waktuindo();
+
+          $this->log->insert($userid, $this->date, $this->time, 'logout');
+          $this->session->sess_destroy();
+          redirect('login');
+        }
     }
 
     function forgot()
