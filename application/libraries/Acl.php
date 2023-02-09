@@ -29,9 +29,7 @@ class Acl {
 //        echo 'Error Message: ' .$e->getMessage();
           redirect('login');
       }
-//      $userid = $this->admin->get_id($this->ci->session->userdata('username'));  
-//      if ($this->ci->session->userdata('login') != TRUE || $this->login->valid($userid, $this->ci->session->userdata('log')) != TRUE )
-//      {  redirect('login'); } 
+      
     }
 
     function otentikasi1($title,$ajax=null)
@@ -51,27 +49,6 @@ class Acl {
           return FALSE;
       }
         
-       
-        
-//        $this->ci->db->select('id, name, publish, status, aktif, limit, role');
-//        $this->ci->db->where('name', $title);
-//        $mod = $this->ci->db->get('modul')->row();
-//
-//        $mod = $mod->role;
-//        $mod = explode(",", $mod);
-//
-//        foreach ($mod as $row) { if ($row == $this->ci->session->userdata('role')) {$val = TRUE; break;} else {$val = FALSE;} }
-//
-//        if ($val != TRUE)
-//        {
-//           if ($ajax){ return FALSE; }
-//           else{
-//             $this->ci->session->set_flashdata('message', 'Sorry, you do not have the right to access '.$title.' component');
-//             redirect('main');
-//           }
-//        }
-//         else {return TRUE;}
-//        return TRUE;
     }
 
     function otentikasi2($title,$ajax=null)

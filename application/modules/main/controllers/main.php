@@ -15,6 +15,7 @@ class Main extends MX_Controller
 //        $this->acl->otentikasi();
         $this->acl = new Acl();
         $this->acl->otentikasi();
+        
         $this->period = new Period_lib();
         $this->period = $this->period->get();
         $this->wb = new Wb_lib();
@@ -31,7 +32,7 @@ class Main extends MX_Controller
 //          $this->acl->otentikasi();
 	  $this->main_panel();
 //        echo 'ini main';
-//        print_r($this->session->userdata('userid'));
+//        print_r($this->session->userdata());
     }    
 
     private function user_agent()

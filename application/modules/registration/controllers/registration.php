@@ -79,7 +79,6 @@ class Registration extends MX_Controller
            elseif ($contract1['result'][0]['no_dokumen'] == '-'){ $error = "No dokumen - required"; }
            elseif ($contract1['result'][0]['jenis_dokumen'] == null){ $error = "Jenis dokumen - required"; }
            
-            
            $response = array(
                 'origin' => $datax['origin'],
                 'amount' => $contract['result'][0]['qty'],
@@ -203,25 +202,39 @@ class Registration extends MX_Controller
         $this->table->set_empty("&nbsp;");
 
             //Set heading untuk table
-            $this->table->set_heading('No', 'ID', 'Origin', 'No-Contract', 'DO-No', 'Name', 'Doc-DO', 'Type', 'Product', 'State', 'Partner', 'Action');
+            $this->table->set_heading('No', 'ID', 'Origin', 'No-Contract', 'DO-No', 'Name', 'Doc-DO', 'Type', 'Product', 'State', 'Partner', 'Doc List', 'Action');
 
             $i = 0;
+            $button = null;
+            
             if ($contract['result']){
                 foreach ($contract['result'] as $res)
                 {
+                   if ($this->valid_doc_origin($res['no_aju'], $res['no_dokumen'], $res['jenis_dokumen']) == true){
+                       $datax = array('name' => 'button', 'type' => 'button', 'class' => 'btn btn-primary', 'content' => 'Select', 'onclick' => 'setvalue(\''.$res['origin'].'\',\''.$target.'\')');
+                       $button = form_button($datax);
+                   }
+                   $doc = $res['no_aju'].'<br/>'.$res['no_dokumen'].'<br/>'.$res['jenis_dokumen'];
 //                    print_r($res['picking_id']);
-                   $datax = array('name' => 'button', 'type' => 'button', 'class' => 'btn btn-primary', 'content' => 'Select', 'onclick' => 'setvalue(\''.$res['origin'].'\',\''.$target.'\')');
                     $this->table->add_row
                     (
+                        
                         ++$i, $res['picking_id'], strtoupper($res['origin']), strtoupper($res['no_do']), strtoupper($res['no_contract']), strtoupper($res['picking_name']),
-                        $res['no_dokumen_do'], $res['picking_type'], $res['product_name'], $res['state'], $res['partner_name'],
-                        form_button($datax)
+                        $res['no_dokumen_do'], $res['picking_type'], $res['product_name'], $res['state'], $res['partner_name'],$doc,
+                        $button
                     );
                 }            
             }
 //
             $data['table'] = $this->table->generate();
             $this->load->view('contract_list', $data);
+    }
+    
+    private function valid_doc_origin($noaju=null,$nodokumen=null,$jenisdokumen=null){
+        if ($noaju <> null && $nodokumen <> '-' && $jenisdokumen <> null){
+            return true;
+        }else{ return false; }
+       
     }
     
    function invoice($pid=null)

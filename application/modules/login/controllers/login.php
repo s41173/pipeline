@@ -36,10 +36,88 @@ class Login extends MX_Controller {
         $this->load->view('login_view', $data);
     }
     
+    private function set_token($userid=null,$token=null){
+        
+        $param = json_encode(array('userid' => $userid, 'token' => $token)); 
+        $response = $this->wb->request('authentication/set_token', $param, 1, 'POST');
+//        print_r($response);
+        if ($response[1] == 200){ return true; }else{ return false; }
+    }
     
-
-    // function untuk memeriksa input user dari form sebagai admin
+    // login to API-WB
     function login_process()
+    {
+        $datax = (array)json_decode(file_get_contents('php://input')); 
+        $status = 200;
+        $response = null;
+
+        $username = $datax['user'];
+        $password = $datax['pass'];
+
+        $postData = array('username' => $username, 'password' => $password);
+        $postString = http_build_query($postData, '', '&');
+        
+        $result = $this->wb->login_request('api/login-in-cjr', $postString,1,'POST');
+        $data = json_decode($result[0], true); 
+                
+            if ($data['status'] == true)
+            {
+                $this->date  = date('Y-m-d');
+                $this->time  = waktuindo();
+                
+                $token = $this->login_proc($username, $password);
+//                print_r($token);
+
+                $logid = intval($this->log->max_log())+1;
+                $waktu = tgleng(date('Y-m-d')).' - '.waktuindo().' WIB';
+
+                $this->log->insert($token, $this->date, $this->time, 'login');
+//
+                $datasession = array('username' => $username, 'userid' => $token, 'role' => $data['login_level'], 'rules' => null, 'log' => $logid, 'login' => TRUE, 'waktu' => $waktu, 'branch' => null);
+//                print_r($datasession);
+                $this->session->set_userdata($datasession);
+                $response = array('Success' => true,'User' => $datax['user'],'Info' => null);
+            }
+            else
+            {
+                $response = array(
+                'Success' => false,
+                'Info' => 'Invalid Login..!!');
+            }
+            
+        $this->output
+        ->set_status_header(201)
+        ->set_content_type('application/json', 'utf-8')
+        ->set_output(json_encode($response))
+        ->_display();
+        exit;
+    }
+    
+    private function login_proc($username,$password)
+    {
+        $status = 200;
+        $response = null;
+
+        $postdata = json_encode(array('user' => $username, 'pass' => $password));
+        $result = $this->wb->request('authentication/login', $postdata,1);
+//        echo $result[1];
+        
+            if (intval($result[1]) == 200)
+            {
+                $data = json_decode($result[0], true); 
+//                print_r($data['token']);
+                
+                $this->date  = date('Y-m-d');
+                $this->time  = waktuindo();
+                $token = $data['token'];
+                return $token;
+            }
+            else
+            { return null;}
+    }
+
+    // Login Oddomw
+    function xxlogin_process()
     {
         $datax = (array)json_decode(file_get_contents('php://input')); 
         $status = 200;
@@ -72,9 +150,6 @@ class Login extends MX_Controller {
 
                 $data = array('username' => $username, 'userid' => $token, 'role' => null, 'rules' => null, 'log' => $logid, 'login' => TRUE, 'waktu' => $waktu, 'branch' => null);
                 $this->session->set_userdata($data);
-//                
-//                if ($subscribe[1]){ $response = array('Success' => true,'User' => $datax['user'],'Info' => $subscribe[1]); }
-//                else{ $response = array('Success' => true,'User' => $datax['user'],'Info' => null); }
                 
                 $response = array('Success' => true,'User' => $datax['user'],'Info' => null);
             }

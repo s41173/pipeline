@@ -10,11 +10,47 @@ class Wb_lib extends Custom_Model {
     {
         $this->deleted = $deleted;
 //        $this->login = new Member_login_lib();
-        $this->url = "http://36.92.181.10:7736/oddomw/";
+        $this->url = "http://36.92.181.10:9985/oddomw/";
+//        $this->url = "http://192.168.64.2/pgci/index.php/";
+        $this->wburl = "http://36.92.181.10:9984/";
     }
 
     private $login;
-    private $url;
+    private $url,$wburl;
+    
+    function login_request($controller=null,$param=null,$type=null,$method='POST')
+    {   
+        $curl = curl_init();
+        
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => $this->wburl.$controller,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_POSTFIELDS => $param,
+        CURLOPT_HTTPHEADER => array(
+        'Content-Type: application/x-www-form-urlencoded'
+        ),
+      ));
+
+        $response = curl_exec($curl);
+        $info = curl_getinfo($curl);
+        $err = curl_error($curl);
+//        $data = json_decode($response, true); 
+
+        curl_close($curl);
+        if (!$type){
+            if ($err) { return $err; }else { return $response; }
+        }else{
+            $result = array();
+            $result[0] = $response;
+            $result[1] = $info['http_code'];
+            return $result;
+        }
+    }
     
     function request($controller=null,$param=null,$type=null,$method='POST')
     {   

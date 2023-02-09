@@ -19,13 +19,18 @@ class Role_lib extends Custom_Model {
         return $data;
     }
     
-    function get_granted_menu($role)
+    function xget_granted_menu($role)
     {
        $this->db->select($this->field);
        $this->db->where('name', $role);
        $this->db->where('deleted', $this->deleted);
        $val = $this->db->get($this->tableName)->row();
        return $val->granted_menu;
+    }
+    
+    function get_granted_menu($role)
+    {
+      return 0;
     }
 
 
