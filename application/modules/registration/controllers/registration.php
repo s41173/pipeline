@@ -276,7 +276,7 @@ class Registration extends MX_Controller
 
     function confirmation($pid)
     {
-        if ($this->acl->otentikasi1($this->title) == TRUE){
+        if ($this->acl->otentikasi_Adminweb($this->title) == TRUE){
         $journal = $this->model->get_by_id($pid)->row();
         
         if ($journal->approved == 1) { echo "warning|$this->title [$journal->code] already approved..!"; }
@@ -429,7 +429,7 @@ class Registration extends MX_Controller
 
     function delete($uid=0)
     {
-         if ($this->acl->otentikasi3($this->title,'ajax') == TRUE){
+         if ($this->acl->otentikasi_SPV($this->title,'ajax') == TRUE){
 
             $journal = $this->model->get_by_id($uid)->row();
             if ($journal->validation == 1 && $journal->approved == 1){
@@ -515,7 +515,7 @@ class Registration extends MX_Controller
     
     function add_process()
     {
-        if ($this->acl->otentikasi2($this->title,'ajax') == TRUE){
+        if ($this->acl->otentikasi_Adminweb($this->title,'ajax') == TRUE){
 
 	// Form validation
         $this->form_validation->set_rules('tcode', 'Code No', 'required|numeric');
@@ -748,7 +748,7 @@ class Registration extends MX_Controller
     // Fungsi update untuk mengupdate db
     function update_process($uid=0)
     {
-        if ($this->acl->otentikasi2($this->title) == TRUE){
+        if ($this->acl->otentikasi_Adminweb($this->title) == TRUE){
             
         $register = $this->model->get_by_id($uid)->row();
 
@@ -851,7 +851,7 @@ class Registration extends MX_Controller
           $this->form_validation->set_rules('tfromqty', 'Sent Qty', 'required|numeric|is_natural_no_zero');
         }
 
-        if ($this->form_validation->run($this) == TRUE && $this->valid_confirmation($uid) == TRUE)
+        if ($this->acl->otentikasi_Adminweb() == TRUE && $this->form_validation->run($this) == TRUE && $this->valid_confirmation($uid) == TRUE)
         {
             $pitem = array('registration_id' => $uid, 
                            'origin_no' => $this->input->post('titem'),
@@ -868,6 +868,7 @@ class Registration extends MX_Controller
             $this->contract->add($pitem);
             echo 'true';
         }
+        elseif ($this->acl->otentikasi_Adminweb() != TRUE){ echo "error|Sorry, you do not have the right to edit $this->title component..!"; }
         elseif ( $this->valid_confirmation($uid) != TRUE ){ echo "error|Can't change value - Journal validated..!"; }
         else{ echo 'error|'.validation_errors(); } 
     }
@@ -895,7 +896,7 @@ class Registration extends MX_Controller
         $this->form_validation->set_rules('ttemp', 'Temperature', 'required|numeric');
         $this->form_validation->set_rules('ttonase', 'Tonase', 'required|numeric');
 
-        if ($this->form_validation->run($this) == TRUE && $this->valid_confirmation($uid) == TRUE)
+        if ($this->acl->otentikasi_Tank() == TRUE && $this->form_validation->run($this) == TRUE && $this->valid_confirmation($uid) == TRUE)
         {
             $pitem = array('registration_id' => $uid, 
                            'type' => $this->input->post('ctanktype'),
@@ -909,11 +910,15 @@ class Registration extends MX_Controller
                 echo 'true';
             }else{ echo "error|Failure to post sounding data..!"; }
         }
+        elseif ($this->acl->otentikasi_Tank() != TRUE){ echo "error|Unauthorized User"; }
         elseif ( $this->valid_confirmation($uid) != TRUE ){ echo "error|Can't change value - Journal validated..!"; }
         else{ echo 'error|'.validation_errors(); } 
     }
     
     function validation($regid){
+        
+      if ($this->acl->otentikasi_Adminweb($this->title) == TRUE){
+        
         $register = $this->model->get_by_id($regid)->row();
         $error = null; $status = TRUE; 
         
@@ -960,6 +965,8 @@ class Registration extends MX_Controller
           if ($this->model->update($regid, $data) == TRUE){ echo 'true|Validation Success'; }else{ echo 'error|Failed to edit validation'; }
         }
         else{ echo 'error|'.$error; }
+        
+       }else { echo "error|Sorry, you do not have the right to edit $this->title component..!"; }
     }
     
     
@@ -980,7 +987,7 @@ class Registration extends MX_Controller
     
     function delete_item($id)
     {
-        if ($this->acl->otentikasi_admin($this->title,'ajax') == TRUE){
+        if ($this->acl->otentikasi_Adminweb($this->title,'ajax') == TRUE){
             
             $jid = $this->contract->get_by_id($id)->row();
             $qcvalid = $this->qc->valid_based_contract($jid->registration_id, $id);
@@ -998,7 +1005,7 @@ class Registration extends MX_Controller
     
     function delete_item_sounding($uid)
     {
-        if ($this->acl->otentikasi_admin($this->title,'ajax') == TRUE){
+        if ($this->acl->otentikasi_Tank($this->title,'ajax') == TRUE){
             
             $jid = $this->sounding->get_by_id($uid)->row();
             if ( $this->valid_confirmation($jid->registration_id) == TRUE )

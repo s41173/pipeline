@@ -109,7 +109,6 @@ class Qc extends MX_Controller
     
     function get_register($regid=0)
     {      
-//        $this->acl->otentikasi();
         if ($this->registration->cek_trans('id',$regid) == FALSE){ redirect('registration'); }
         
         $data['title'] = $this->properti['name'].' | Administrator  '.ucwords($this->modul['title']);
@@ -150,7 +149,7 @@ class Qc extends MX_Controller
     }
     
     function add_item($regid=0)
-    {
+    {   
         $this->form_validation->set_rules('ccontract', 'Origin No', 'required');
         $this->form_validation->set_rules('csupplier', 'Supplier', '');
         $this->form_validation->set_rules('tnogk', 'NO GK', 'required');
@@ -185,7 +184,7 @@ class Qc extends MX_Controller
         $type = TRUE;
         if ($register->type != "CARRIAGE"){ $type = FALSE; }
 
-        if ($this->form_validation->run($this) == TRUE && $this->registration->valid_confirmation($regid) == TRUE && $type == TRUE)
+        if ($this->acl->otentikasi_QC() == TRUE && $this->form_validation->run($this) == TRUE && $this->registration->valid_confirmation($regid) == TRUE && $type == TRUE)
         {
             if ($this->input->post('tsupplier') != ""){ $supplier = strtoupper($this->input->post('tsupplier')); }
             else{ $supplier = $this->input->post('csupplier'); }
@@ -226,12 +225,13 @@ class Qc extends MX_Controller
         }
         elseif ( $type != TRUE ){ echo "error|Can't change value - Invalid Journal Type..!"; }
         elseif ( $this->registration->valid_confirmation($regid) != TRUE ){ echo "error|Can't change value - Journal validated..!"; }
+        elseif ($this->acl->otentikasi_QC() != TRUE){ echo 'error|Unauthorized User'; }
         else{ echo 'error|'.validation_errors(); } 
     }
     
     function delete_item($id)
     {
-        if ($this->acl->otentikasi_admin($this->title,'ajax') == TRUE){
+        if ($this->acl->otentikasi_QC($this->title,'ajax') == TRUE){
             
             $jid = $this->model->get_by_id($id)->row();
             if ( $this->registration->valid_confirmation($jid->registration_id) == TRUE )

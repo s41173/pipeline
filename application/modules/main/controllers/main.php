@@ -32,7 +32,7 @@ class Main extends MX_Controller
 //          $this->acl->otentikasi();
 	  $this->main_panel();
 //        echo 'ini main';
-//        print_r($this->session->userdata());
+//        print_r($this->session->userdata('role'));
     }    
 
     private function user_agent()

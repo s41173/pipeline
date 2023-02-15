@@ -58,6 +58,7 @@ class Login extends MX_Controller {
         $postString = http_build_query($postData, '', '&');
         
         $result = $this->wb->login_request('api/login-in-cjr', $postString,1,'POST');
+//        print_r($result);
         $data = json_decode($result[0], true); 
                 
             if ($data['status'] == true)
@@ -117,7 +118,7 @@ class Login extends MX_Controller {
     }
 
     // Login Oddomw
-    function xxlogin_process()
+    function xlogin_process()
     {
         $datax = (array)json_decode(file_get_contents('php://input')); 
         $status = 200;

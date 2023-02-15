@@ -139,6 +139,39 @@ class Acl {
 //        else {return TRUE;}
         return TRUE;
     }
+    
+    function otentikasi_QC($title='main',$ajax=null)
+    {
+        $role = $this->ci->session->userdata('role');
+        if ($role == "OP_QCPASS"){
+            return TRUE;
+        }else{ return FALSE; }
+    }
+    
+    function otentikasi_Tank($title='main',$ajax=null)
+    {
+        $role = $this->ci->session->userdata('role');
+        if ($role == "OP_TANKI" || $role == "OP_UNLOADING"){
+            return TRUE;
+        }else{ return FALSE; }
+    }
+    
+    function otentikasi_Adminweb($title='main',$ajax=null)
+    {
+        $role = $this->ci->session->userdata('role');
+        if ($role == "ADMINWEB"){
+            return TRUE;
+        }else{ return FALSE; }
+    }
+    
+    function otentikasi_SPV($title='main',$ajax=null)
+    {
+        $role = $this->ci->session->userdata('role');
+        if ($role == "SPV"){
+            return TRUE;
+        }else{ return FALSE; }
+    }
+    
 }
 
 /* End of file Property.php */

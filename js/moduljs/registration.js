@@ -340,7 +340,16 @@ $(document).ready(function (e) {
 						
 					}
 					else if (res[0] == 'warning'){ error_mess(2,res[1],0); }
-					else{ error_mess(3,res[1],0); }
+					else{ 
+						error_mess(3,res[1],0); 
+						// swal(res[1], "", "error");
+						swal({
+							title: res[1],
+							text: "",
+							type: "error",
+							timer: 3000
+						});
+					}
 				},
 				error: function(e) 
 				{
