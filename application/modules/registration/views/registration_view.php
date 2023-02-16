@@ -40,6 +40,7 @@
 	var sites_get  = "<?php echo site_url('registration/update/');?>";
     var sites_details  = "<?php echo site_url('qc/get_register/');?>";
     var sites_primary  = "<?php echo site_url('registration/confirmation/');?>";
+    var sites_invoice  = "<?php echo site_url('registration/invoice/');?>";
 	var source = "<?php echo $source;?>";
     var sites  = "<?php echo site_url('registration/');?>";
         

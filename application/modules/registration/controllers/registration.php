@@ -242,35 +242,114 @@ class Registration extends MX_Controller
        $this->acl->otentikasi2($this->title);
        $ap = $this->model->get_by_id($pid)->row();
 
-       $data['h2title'] = 'Print Invoice'.$this->modul['title'];
+       $data['h2title'] = 'Print Invoice '.$this->modul['title'].' - '.$ap->docno;
 
-       $data['pono'] = "CO-0".$pid;
+       $data['date'] = tglincomplete($ap->dates);
+       $data['hari'] = get_indo_day($ap->dates);
        $data['docno'] = $ap->docno;
-       $data['date'] = tglin($ap->dates);
-       $data['customer'] = $this->customer->get_name($ap->cust_id);
-       $data['start'] = tglin($ap->starts);
-       $data['end'] = tglin($ap->ends);
-       $data['notes'] = ucfirst($ap->notes);
-       $data['amount'] = $ap->amount;
-       $data['balance'] = $ap->balance;
-       $data['tax'] = $ap->tax;
-       $data['taxval'] = $ap->tax_val;
-       $data['approved'] = $ap->approved;
-       $data['status'] = $ap->status;
-       $data['log'] = $this->session->userdata('log');
-
-       $data['amount'] = $ap->amount;
-       $terbilang = $this->load->library('terbilang');
-       $data['terbilang'] = ucwords($terbilang->baca($ap->amount));
        
-       if($ap->approved == 1){ $stts = 'A'; }else{ $stts = 'NA'; }
-       $data['stts'] = $stts;
-
-       $data['items'] = $this->sales->get_based_contract($pid)->result();
+       $data['ffa'] = $ap->ffa;
+       $data['moist'] = $ap->m;
+       $data['impurities'] = $ap->i;
        
-       $data['accounting'] = $this->properti['accounting'];
-       $data['manager'] = $this->properti['manager'];
-       $this->load->view('contract_invoice', $data);
+       if ($ap->qc_status == 0){ $qcstts = "OK";}
+       elseif ($ap->qc_status == 1){ $qcstts = "NOT OK"; }
+       elseif ($ap->qc_status == 2){ $qcstts = "REJECT"; }
+       
+       $data['qcstatus'] = $qcstts;
+       $data['items'] = $this->contract->get_last($pid);
+       $data['source'] = $ap->source_tank;
+       $data['dest'] = $ap->to_tank;
+       $data['desc'] = $ap->description;
+       $data['start_date'] = tglin($ap->start_transfer);
+       $data['start_time'] = timein($ap->start_transfer);
+       $data['end_date'] = tglin($ap->end_transfer);
+       $data['end_time'] = timein($ap->end_transfer);
+       $data['pic_ibl'] = $ap->pic_1;
+       $data['pic_obl'] = $ap->pic_2;
+       $data['pic_kinra'] = $ap->pic_3;
+       $data['pic_qc'] = $ap->pic_qc;
+       
+       
+       if ($this->sounding->count_row_based_registration($pid) == TRUE){
+           
+          $before = $this->sounding->get_by_period($pid, 0); // before 
+          $after  = $this->sounding->get_by_period($pid, 1); // after
+          
+          
+          $qty_source_before = $before->source_tonase;
+          $qty_source_after = $after->source_tonase;
+          $qty_to_before = $before->to_tonase;
+          $qty_to_after = $after->to_tonase;
+           
+          $data['source_before_cm'] = $before->source_cm;
+          $data['source_before_temp'] = $before->source_temp;
+          $data['source_before_tonase'] = number_format($before->source_tonase);
+          $data['dest_before_cm'] = $before->to_cm;
+          $data['dest_before_temp'] = $before->to_temp;
+          $data['dest_before_tonase'] = number_format($before->to_tonase);
+          
+          
+          $data['source_after_cm'] = $after->source_cm;
+          $data['source_after_temp'] = $after->source_temp;
+          $data['source_after_tonase'] = number_format($after->source_tonase);
+          $data['dest_after_cm'] = $after->to_cm;
+          $data['dest_after_temp'] = $after->to_temp;
+          $data['dest_after_tonase'] = number_format($after->to_tonase);
+          
+           $data['qty_kirim'] = abs($qty_source_after-$qty_source_before);
+           $data['qty_terima'] = $qty_to_after-$qty_to_before;
+           $data['selisih'] = round($data['qty_terima']-$data['qty_kirim'],3);
+           $selisih = @floatval($data['selisih']/$data['qty_terima']);
+           $data['persentase'] = round($selisih*100,3,PHP_ROUND_HALF_DOWN);
+          
+       }else{
+          $data['source_before_cm'] = "";
+          $data['source_before_temp'] = "";
+          $data['source_before_tonase'] = "";
+          $data['dest_before_cm'] = "";
+          $data['dest_before_temp'] = "";
+          $data['dest_before_tonase'] = "";
+          
+          $data['source_after_cm'] = "";
+          $data['source_after_temp'] = "";
+          $data['source_after_tonase'] = "";
+          $data['dest_after_cm'] = "";
+          $data['dest_after_temp'] = "";
+          $data['dest_after_tonase'] = ""; 
+          
+          $data['qty_kirim'] = "";
+          $data['qty_terima'] = "";
+          $data['selisih'] = "";
+          $selisih = "";
+          $data['persentase'] = "";
+       }
+     
+       
+//       $data['customer'] = $this->customer->get_name($ap->cust_id);
+//       $data['start'] = tglin($ap->starts);
+//       $data['end'] = tglin($ap->ends);
+//       $data['notes'] = ucfirst($ap->notes);
+//       $data['amount'] = $ap->amount;
+//       $data['balance'] = $ap->balance;
+//       $data['tax'] = $ap->tax;
+//       $data['taxval'] = $ap->tax_val;
+//       $data['approved'] = $ap->approved;
+//       $data['status'] = $ap->status;
+//       $data['log'] = $this->session->userdata('log');
+
+//       $data['amount'] = $ap->amount;
+//       $terbilang = $this->load->library('terbilang');
+//       $data['terbilang'] = ucwords($terbilang->baca($ap->amount));
+//       
+//       if($ap->approved == 1){ $stts = 'A'; }else{ $stts = 'NA'; }
+//       $data['stts'] = $stts;
+//
+//       $data['items'] = $this->sales->get_based_contract($pid)->result();
+//       
+//       $data['accounting'] = $this->properti['accounting'];
+//       $data['manager'] = $this->properti['manager'];
+       $this->load->view('registration_invoice', $data);
    }
    
 

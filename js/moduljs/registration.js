@@ -106,6 +106,18 @@ $(document).ready(function (e) {
 		window.location.href = url;
 	});
 
+	// fungsi print
+	$(document).on('click','.text-print',function(e)
+	{	e.preventDefault();
+		var element = $(this);
+		var del_id = element.attr("id");
+		var url = sites_invoice +"/"+ del_id;
+		
+		// console.log(url);
+		window.open(url, "_blank", "scrollbars=1,resizable=0,height=600,width=800");
+		
+	});
+
 	// validate status
 	$(document).on('click','#validatebtn',function(e)
 	{	
@@ -404,6 +416,7 @@ $(document).ready(function (e) {
 '<a href="" class="'+stts+' btn-xs primary_status" id="' +s[i][0]+ '" title="Primary Status"> <i class="fa fa-power-off"> </i> </a> '+
 '<a href="" class="btn btn-primary btn-xs text-primary" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-edit"> </i> </a> '+
 '<a href="" class="btn btn-warning btn-xs text-ledger" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a> '+
+'<a href="" class="btn btn-success btn-xs text-print" id="' +s[i][0]+ '" title="Invoice Status"> <i class="fa fa-print"> </i> </a> '+
 '<a href="#" class="btn btn-danger btn-xs text-danger" id="'+s[i][0]+'" title="delete"> <i class="fa fas-2x fa-trash"> </i> </a>'+
 '</div>'
 							  ]);										
@@ -459,6 +472,7 @@ $(document).ready(function (e) {
 '<a href="" class="'+stts+' btn-xs primary_status" id="' +s[i][0]+ '" title="Primary Status"> <i class="fa fa-power-off"> </i> </a> '+
 '<a href="" class="btn btn-primary btn-xs text-primary" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-edit"> </i> </a> '+
 '<a href="" class="btn btn-warning btn-xs text-ledger" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a> '+
+'<a href="" class="btn btn-success btn-xs text-print" id="' +s[i][0]+ '" title="Invoice Status"> <i class="fa fa-print"> </i> </a> '+
 '<a href="#" class="btn btn-danger btn-xs text-danger" id="'+s[i][0]+'" title="delete"> <i class="fa fas-2x fa-trash"> </i> </a>'+
 '</div>'
 										    ]);										
