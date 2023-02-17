@@ -262,6 +262,38 @@ class Qc extends MX_Controller
         if ($this->input->post('ctype') == 0){ $this->load->view('qc_report', $data); }
         else { $this->load->view('qc_pivot', $data); }
     }
+    
+   function invoice($pid=null)
+   {
+       $this->acl->otentikasi2($this->title);
+       $data['h2title'] = 'QC-Print Receipt '.$this->modul['title'];
+       
+       $ap = $this->model->get_by_id($pid)->row();
+       $registrasi = $this->registration->get_by_id($ap->registration_id)->row();
+       $contract = $this->contract->get_details($ap->contract_id);
+
+       $nilai = array('limit' => 1, 'offset' => 0, 'search_type'=> 1, 'filter' => $contract->origin_no); 
+       $param = json_encode($nilai, JSON_UNESCAPED_SLASHES,true);
+       $result = $this->wb->request_auth('contract', $this->session->userdata('userid'), $param);
+       $result = json_decode($result, true); 
+       
+//       print_r($result['result'][0]['product_name']);
+       
+       $data['date'] = tglincompletetime($registrasi->dates);
+       $data['docno'] = $registrasi->docno;
+       $data['contract'] = $contract->origin_no;
+       $data['product'] = $result['result'][0]['product_name'];
+       $data['gerbong'] = $ap->gk_no;
+       $data['dest'] = $registrasi->to_tank;
+       $data['customer'] = $result['result'][0]['partner_name'];
+       $data['supplier'] = $ap->supplier;
+       $data['ffa'] = $ap->ffa;
+       $data['moist'] = $ap->moist;
+       $data['imp'] = $ap->imp;
+       $data['user'] = $registrasi->pic_qc;
+
+       $this->load->view('qc_invoice', $data);
+   }
         
 }
 

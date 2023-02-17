@@ -115,7 +115,6 @@ $(document).ready(function (e) {
 		
 		// console.log(url);
 		window.open(url, "_blank", "scrollbars=1,resizable=0,height=600,width=800");
-		
 	});
 
 	// validate status

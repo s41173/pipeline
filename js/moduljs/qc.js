@@ -95,15 +95,15 @@ $(document).ready(function (e) {
 	});
 
 	
-		// fungsi jquery update
-	$(document).on('click','.text-ledger',function(e)
-	{	
-		e.preventDefault();
+	// fungsi print
+	$(document).on('click','.text-print',function(e)
+	{	e.preventDefault();
 		var element = $(this);
 		var del_id = element.attr("id");
-		var url = sites_details +"/"+ del_id;
+		var url = sites_invoice +"/"+ del_id;
+		
 		// console.log(url);
-		window.location.href = url;
+		window.open(url, "_blank", "scrollbars=1,resizable=0,height=600,width=800");
 	});
 
 	// validate status
@@ -409,7 +409,7 @@ $(document).ready(function (e) {
 						  s[i][8],
 						  
 '<div class="btn-group" role"group">'+
-'<a href="" class="btn btn-warning btn-xs text-ledger" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a> '+
+'<a href="" class="btn btn-success btn-xs text-print" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-print"> </i> </a> '+
 '</div>'
 							  ]);										
 							  } // End For 
@@ -463,7 +463,7 @@ $(document).ready(function (e) {
 										s[i][8],
 										
 '<div class="btn-group" role"group">'+
-'<a href="" class="btn btn-warning btn-xs text-ledger" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-book"> </i> </a> '+
+'<a href="" class="btn btn-success btn-xs text-print" id="' +s[i][0]+ '" title=""> <i class="fa fas-2x fa-print"> </i> </a> '+
 '</div>'
 										    ]);										
 											} // End For 

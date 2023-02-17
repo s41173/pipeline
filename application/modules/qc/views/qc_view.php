@@ -38,7 +38,7 @@
 	var sites_del  = "<?php echo site_url('registration/delete/');?>";
     var sites_update = "<?php echo site_url('qc/update_all/');?>";
 	var sites_get  = "<?php echo site_url('qc/update/');?>";
-    var sites_details  = "<?php echo site_url('qc/invoice/');?>";
+    var sites_invoice  = "<?php echo site_url('qc/invoice/');?>";
     var sites_primary  = "<?php echo site_url('qc/confirmation/');?>";
 	var source = "<?php echo $source;?>";
     var sites  = "<?php echo site_url('qc/');?>";
